@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#17211D" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121714" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Админ-панель · Расписание АФК</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Onest:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#EDEFEC;--paper:#FAFAF8;--ink:#17211D;--mute:#65706A;--line:#D5DAD5;
+  --r:#44505E;--g:#1F6B4E;--s:#CF4A2C;
+  --hero:#17211D;--hero-fg:#F3F5F1;--hero-acc:#FF8A6B;
+  --accent:#1F6B4E;--accent-hover:#17533C;--danger:#CF4A2C;--warning:#D97706;
+  --disp:'Barlow Condensed','Arial Narrow',sans-serif;
+  --font:Onest,system-ui,-apple-system,sans-serif;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#121714;--paper:#1B221E;--ink:#ECEFEA;--mute:#97A39B;--line:#2B352F;
+  --r:#9BB0C6;--g:#5CC49A;--s:#F0775A;--hero:#2A352E;
+  --accent:#5CC49A;--accent-hover:#48A882;--danger:#F0775A;--warning:#FBBF24;
+}}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  font-family:var(--font);background:var(--bg);color:var(--ink);
+  min-height:100vh;line-height:1.4;
+  background-image:repeating-linear-gradient(90deg,transparent 0 95px,color-mix(in srgb,var(--ink) 5%,transparent) 95px 96px);
+  background-attachment:fixed;
+  padding-bottom:90px;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.wrap{
+  max-width:640px;margin:0 auto;
+  padding:max(14px,env(safe-area-inset-top)) 14px max(24px,env(safe-area-inset-bottom));
+}
+
+/* Icons */
+.icon{width:18px;height:18px;display:inline-block;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Login screen */
+#login-screen{
+  min-height:85vh;display:flex;flex-direction:column;justify-content:center;align-items:center;
+}
+.login-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:18px;
+  padding:24px 20px;width:100%;max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,.06);
+}
+.login-header{text-align:center;margin-bottom:20px}
+.login-header h1{font:700 1.6rem/1 var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.login-header p{font-size:.85rem;color:var(--mute);margin-top:4px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);margin-bottom:6px}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-text{
+  width:100%;height:46px;padding:0 42px 0 12px;border:1px solid var(--line);
+  border-radius:10px;background:var(--bg);color:var(--ink);font-size:16px;
+}
+.input-text:focus{border-color:var(--accent);outline:none}
+.btn-toggle-pwd{position:absolute;right:8px;padding:8px;color:var(--mute);display:flex}
+.btn-primary{
+  width:100%;height:46px;background:var(--accent);color:#fff;font-weight:600;
+  border-radius:10px;font-size:.95rem;transition:background .15s;
+}
+@media(prefers-color-scheme:dark){.btn-primary{color:#121714;font-weight:700}}
+.btn-primary:active{background:var(--accent-hover)}
+.login-err{
+  margin-top:14px;padding:10px 12px;border-radius:8px;font-size:.82rem;line-height:1.35;
+  background:color-mix(in srgb,var(--danger) 12%,var(--paper));
+  border:1px solid color-mix(in srgb,var(--danger) 30%,transparent);
+  color:var(--danger);display:none;
+}
+
+/* Top bar */
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:4px 2px 14px}
+.greeting{font:700 1.25rem/1 var(--disp);text-transform:uppercase;letter-spacing:.02em}
+.subline{font-size:.8rem;color:var(--mute);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.hdr-actions{display:flex;gap:6px;align-items:center}
+.btn-icon{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--line);
+  background:var(--paper);display:flex;align-items:center;justify-content:center;
+  color:var(--mute);transition:all .15s;
+}
+.btn-icon:active{background:color-mix(in srgb,var(--ink) 8%,var(--paper))}
+
+/* Warning banners */
+.warnings-box{display:none;margin-bottom:14px;gap:8px;flex-direction:column}
+.warn-item{
+  padding:8px 12px;border-radius:8px;font-size:.8rem;
+  background:color-mix(in srgb,var(--warning) 12%,var(--paper));
+  border:1px solid color-mix(in srgb,var(--warning) 30%,transparent);
+  color:var(--warning);display:flex;align-items:center;gap:8px;
+}
+
+/* Main Navigation Tabs */
+.nav-tabs{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
+  margin-bottom:16px;padding:4px;border-radius:14px;
+  background:color-mix(in srgb,var(--ink) 7%,transparent);
+}
+.nav-tab{
+  padding:8px 2px;border-radius:10px;font-size:.8rem;font-weight:600;
+  color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:4px;
+  text-align:center;transition:all .15s;
+}
+.nav-tab[aria-selected="true"]{
+  background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+
+/* Day switchers */
+.day-tabs{
+  display:grid;grid-template-columns:repeat(6,1fr) 1.15fr;gap:4px;
+  margin-bottom:14px;padding:4px;border-radius:12px;
+  background:color-mix(in srgb,var(--ink) 6%,transparent);
+}
+.day-tab{
+  padding:7px 0;border-radius:8px;font-weight:600;font-size:.88rem;color:var(--mute);
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+}
+.day-tab[aria-selected="true"]{
+  background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);
+}
+
+/* Schedule cards */
+.day-heading{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.day-heading h2{font:700 1.6rem/1 var(--disp);text-transform:uppercase}
+.day-heading span{font-size:.82rem;color:var(--mute)}
+
+.slots-list{display:flex;flex-direction:column;gap:10px}
+.slot-block{
+  background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--v,var(--line));
+  border-radius:10px;padding:12px;position:relative;cursor:pointer;
+  transition:all .2s ease;
+  user-select:none;
+}
+.slot-block.dragging{opacity:.4;border-style:dashed}
+.slot-block.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.slot-block.empty{
+  border-left:1px dashed var(--line);border-style:dashed;
+  background:color-mix(in srgb,var(--ink) 2%,var(--bg));
+  display:flex;align-items:center;justify-content:space-between;padding:14px 12px;
+}
+.slot-empty-title{font-size:.85rem;color:var(--mute);display:flex;align-items:center;gap:6px}
+.slot-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.slot-time{font:700 1.35rem/1 var(--disp);color:var(--mute);font-variant-numeric:tabular-nums}
+.slot-actions{display:flex;gap:4px}
+.btn-slot-act{
+  width:30px;height:30px;border-radius:6px;border:1px solid var(--line);
+  background:var(--bg);color:var(--mute);display:flex;align-items:center;justify-content:center;
+}
+.btn-slot-act:active{background:color-mix(in srgb,var(--ink) 10%,var(--paper))}
+.slot-main{margin-top:6px}
+.slot-name{font-weight:600;font-size:1rem;line-height:1.25}
+.slot-tag{font-size:.68rem;font-weight:600;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px}
+.slot-place{font-size:.85rem;font-weight:600;color:var(--v);margin-top:2px}
+.slot-teacher{font-size:.8rem;color:var(--mute);margin-top:1px}
+
+/* Week grid view */
+.wk-grid{display:grid;grid-template-columns:26px repeat(6,1fr);gap:4px;margin-top:8px}
+.wk-grid .h{text-align:center;font-weight:700;font-size:.82rem;color:var(--mute);padding-bottom:4px}
+.wk-grid .rl{font:700 1.25rem var(--disp);color:var(--mute);display:flex;align-items:center;justify-content:center}
+.wk-c{
+  min-height:74px;border:0;border-left:3px solid var(--v);border-radius:6px;
+  background:color-mix(in srgb,var(--v) 15%,var(--paper));
+  font:600 .7rem/1.2 var(--font);text-align:left;padding:6px 4px;
+  cursor:pointer;overflow:hidden;word-break:break-word;hyphens:auto;
+}
+.wk-c.empty{background:var(--paper);border:1px dashed var(--line);color:var(--mute);cursor:pointer;opacity:.7}
+
+/* Subjects tab */
+.subjs-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.btn-add{
+  height:38px;padding:0 14px;background:var(--accent);color:#fff;font-weight:600;
+  border-radius:8px;font-size:.85rem;display:inline-flex;align-items:center;gap:6px;
+}
+@media(prefers-color-scheme:dark){.btn-add{color:#121714;font-weight:700}}
+.subjs-list{display:flex;flex-direction:column;gap:8px}
+.subj-item{
+  background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--v);
+  border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.subj-info h3{font-size:.95rem;font-weight:600}
+.subj-meta{font-size:.8rem;color:var(--mute);margin-top:2px}
+.subj-actions{display:flex;gap:6px}
+
+/* Overrides tab */
+.overrides-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.override-item{
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.ov-badge{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:4px;
+}
+.ov-cancel{background:color-mix(in srgb,var(--danger) 15%,var(--paper));color:var(--danger)}
+.ov-replace{background:color-mix(in srgb,var(--accent) 15%,var(--paper));color:var(--accent)}
+
+/* Bells tab */
+.bells-list{display:flex;flex-direction:column;gap:10px}
+.bell-row{
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+}
+.bell-num{font:700 1.8rem/1 var(--disp);color:var(--mute)}
+.bell-inputs{display:flex;align-items:center;gap:8px}
+.bell-input{
+  width:88px;height:40px;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);text-align:center;font-size:16px;font-weight:600;
+}
+
+/* History tab */
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.history-v{font:700 1.3rem/1 var(--disp);color:var(--mute)}
+.history-time{font-size:.82rem;color:var(--mute)}
+
+/* Persistent bottom bar */
+.bottom-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:90;
+  background:color-mix(in srgb,var(--paper) 95%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  padding:10px 14px max(10px,env(safe-area-inset-bottom));
+}
+.bottom-bar-inner{
+  max-width:640px;margin:0 auto;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+}
+.status-indicator{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--mute);min-width:0}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0}
+.status-dot.dirty{background:var(--warning);animation:pulse-dot 1.8s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
+.status-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bottom-buttons{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.btn-undo,.btn-redo{
+  width:38px;height:38px;border-radius:8px;border:1px solid var(--line);
+  background:var(--paper);display:flex;align-items:center;justify-content:center;color:var(--mute);
+}
+.btn-undo:disabled,.btn-redo:disabled{opacity:.35;cursor:not-allowed}
+.btn-preview{
+  height:38px;padding:0 12px;border:1px solid var(--line);background:var(--paper);
+  border-radius:8px;font-size:.85rem;font-weight:600;color:var(--ink);
+}
+.btn-publish{
+  height:38px;padding:0 16px;background:var(--hero-acc);color:#121714;
+  border-radius:8px;font-size:.88rem;font-weight:700;transition:opacity .15s;
+}
+.btn-publish:active{opacity:.85}
+
+/* Bottom sheet & Modals */
+.sheet-backdrop{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;
+  opacity:0;pointer-events:none;transition:opacity .22s ease;
+}
+.sheet-backdrop.active{opacity:1;pointer-events:auto}
+.sheet{
+  position:fixed;left:0;right:0;bottom:0;z-index:101;
+  background:var(--paper);border-top:1px solid var(--line);
+  border-radius:20px 20px 0 0;padding:16px 16px max(20px,env(safe-area-inset-bottom));
+  max-width:640px;margin:0 auto;max-height:85vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.3,1);
+}
+.sheet.active{transform:translateY(0)}
+.sheet-grabber{width:36px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.sheet-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.sheet-title{font:700 1.2rem/1 var(--disp);text-transform:uppercase}
+.sheet-close{font-size:.85rem;color:var(--mute);font-weight:500}
+
+/* Subject select sheet */
+.search-input{
+  width:100%;height:40px;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);padding:0 10px;font-size:16px;margin-bottom:10px;
+}
+.subjs-picker-list{display:flex;flex-direction:column;gap:6px;max-height:48vh;overflow-y:auto;margin-bottom:12px}
+.picker-item{
+  background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;text-align:left;border-left:4px solid var(--v);
+}
+.picker-item:active{background:color-mix(in srgb,var(--ink) 8%,var(--paper))}
+.picker-item h4{font-size:.9rem;font-weight:600}
+.picker-item p{font-size:.78rem;color:var(--mute);margin-top:2px}
+
+/* Preview Modal */
+.preview-modal{
+  position:fixed;inset:0;background:var(--bg);z-index:150;overflow-y:auto;
+  padding:14px 14px 40px;display:none;
+}
+.preview-modal.active{display:block}
+.preview-bar{
+  position:sticky;top:0;z-index:2;background:var(--hero);color:#fff;
+  border-radius:10px;padding:8px 14px;margin-bottom:16px;
+  display:flex;justify-content:space-between;align-items:center;box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+.preview-badge{font-size:.75rem;font-weight:700;text-transform:uppercase;color:var(--hero-acc)}
+
+/* Toast */
+.toast{
+  position:fixed;left:50%;bottom:max(70px,env(safe-area-inset-bottom));transform:translate(-50%,20px);
+  background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;
+  font-size:.85rem;font-weight:500;opacity:0;pointer-events:none;transition:.22s ease;z-index:200;
+  text-align:center;max-width:90%;
+}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+/* Helpers */
+.v-r{--v:var(--r)}.v-g{--v:var(--g)}.v-s{--v:var(--s)}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<!-- ================= LOGIN SCREEN ================= -->
+<div id="login-screen" class="wrap">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>Вход в админку</h1>
+      <p>Расписание АФК · Староста группы</p>
+    </div>
+    <form id="login-form">
+      <div class="form-group">
+        <label for="password">Пароль</label>
+        <div class="input-wrap">
+          <input type="password" id="password" class="input-text" placeholder="Введите пароль" required autocomplete="current-password">
+          <button type="button" id="btn-toggle-pwd" class="btn-toggle-pwd" title="Показать/скрыть пароль" aria-label="Показать/скрыть пароль">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="btn-primary" id="btn-login-submit">Войти</button>
+      <div id="login-error" class="login-err"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= APP SCREEN ================= -->
+<div id="app-screen" class="wrap hidden">
+  <header>
+    <div>
+      <h1 class="greeting" id="hdr-greeting">Привет, староста</h1>
+      <div class="subline">
+        <span id="hdr-updated">Загрузка...</span>
+      </div>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn-icon" id="btn-copy-link" title="Скопировать ссылку" aria-label="Скопировать ссылку на сайт">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      </button>
+      <button class="btn-icon" id="btn-show-qr" title="Показать QR-код" aria-label="Показать QR-код для группы">
+        <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M7 17h.01"/><path d="M17 17h.01"/><path d="M7 7h.01"/><path d="M17 7h.01"/></svg>
+      </button>
+      <button class="btn-icon" id="btn-logout" title="Выйти" aria-label="Выйти из системы">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Soft Conflict Warnings -->
+  <div class="warnings-box" id="warnings-box"></div>
+
+  <!-- Main Navigation Tabs -->
+  <nav class="nav-tabs" role="tablist">
+    <button class="nav-tab" data-tab="schedule" aria-selected="true">
+      <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Неделя</span>
+    </button>
+    <button class="nav-tab" data-tab="subjects" aria-selected="false">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Предметы</span>
+    </button>
+    <button class="nav-tab" data-tab="overrides" aria-selected="false">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+      <span>Замены</span>
+    </button>
+    <button class="nav-tab" data-tab="bells" aria-selected="false">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Звонки</span>
+    </button>
+    <button class="nav-tab" data-tab="history" aria-selected="false">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/></svg>
+      <span>История</span>
+    </button>
+  </nav>
+
+  <!-- TAB: SCHEDULE -->
+  <section id="tab-content-schedule">
+    <div class="day-tabs" id="day-tabs">
+      <button class="day-tab" data-day="0" aria-selected="true">Пн</button>
+      <button class="day-tab" data-day="1" aria-selected="false">Вт</button>
+      <button class="day-tab" data-day="2" aria-selected="false">Ср</button>
+      <button class="day-tab" data-day="3" aria-selected="false">Чт</button>
+      <button class="day-tab" data-day="4" aria-selected="false">Пт</button>
+      <button class="day-tab" data-day="5" aria-selected="false">Сб</button>
+      <button class="day-tab" data-day="w" aria-selected="false">Сетка</button>
+    </div>
+
+    <!-- Day single view -->
+    <div id="day-single-view">
+      <div class="day-heading">
+        <h2 id="current-day-name">Понедельник</h2>
+        <span id="current-day-count">3 пары</span>
+      </div>
+      <div class="slots-list" id="slots-container"></div>
+    </div>
+
+    <!-- Week grid view -->
+    <div id="week-grid-view" class="hidden">
+      <div class="wk-grid" id="week-grid-table"></div>
+    </div>
+  </section>
+
+  <!-- TAB: SUBJECTS -->
+  <section id="tab-content-subjects" class="hidden">
+    <div class="subjs-toolbar">
+      <h2 style="font:700 1.4rem/1 var(--disp);text-transform:uppercase;">Все предметы</h2>
+      <button class="btn-add" id="btn-create-subject">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Добавить</span>
+      </button>
+    </div>
+    <div class="subjs-list" id="subjects-list-container"></div>
+  </section>
+
+  <!-- TAB: OVERRIDES -->
+  <section id="tab-content-overrides" class="hidden">
+    <div class="subjs-toolbar">
+      <h2 style="font:700 1.4rem/1 var(--disp);text-transform:uppercase;">Разовые замены и отмены</h2>
+      <button class="btn-add" id="btn-create-override">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>Добавить</span>
+      </button>
+    </div>
+    <p style="font-size:.82rem;color:var(--mute);margin-bottom:10px;">
+      Замены действуют только в выбранный день и автоматически скрываются после его завершения.
+    </p>
+    <div class="overrides-list" id="overrides-list-container"></div>
+  </section>
+
+  <!-- TAB: BELLS -->
+  <section id="tab-content-bells" class="hidden">
+    <div class="subjs-toolbar">
+      <h2 style="font:700 1.4rem/1 var(--disp);text-transform:uppercase;">Расписание звонков</h2>
+      <button class="btn-primary" style="width:auto;height:38px;padding:0 14px;" id="btn-save-bells">Сохранить</button>
+    </div>
+    <div class="bells-list" id="bells-list-container"></div>
+  </section>
+
+  <!-- TAB: HISTORY -->
+  <section id="tab-content-history" class="hidden">
+    <div class="subjs-toolbar">
+      <h2 style="font:700 1.4rem/1 var(--disp);text-transform:uppercase;">История публикаций</h2>
+    </div>
+    <p style="font-size:.82rem;color:var(--mute);margin-bottom:12px;">
+      Хранятся последние 10 опубликованных версий. Можно в один клик откатить ошибку.
+    </p>
+    <div class="history-list" id="history-list-container"></div>
+  </section>
+</div>
+
+<!-- ================= PERSISTENT BOTTOM BAR ================= -->
+<div class="bottom-bar" id="bottom-bar">
+  <div class="bottom-bar-inner">
+    <div class="status-indicator">
+      <div class="status-dot" id="status-dot"></div>
+      <span class="status-text" id="status-text">Опубликовано</span>
+    </div>
+    <div class="bottom-buttons">
+      <button class="btn-undo" id="btn-undo" title="Отменить действие" aria-label="Отменить последнее действие" disabled>
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+      </button>
+      <button class="btn-redo" id="btn-redo" title="Повторить действие" aria-label="Повторить отменённое действие" disabled>
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+      </button>
+      <button class="btn-preview" id="btn-preview">Предпросмотр</button>
+      <button class="btn-publish" id="btn-publish">Опубликовать</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= BOTTOM SHEET: SUBJECT PICKER ================= -->
+<div class="sheet-backdrop" id="sheet-picker-backdrop"></div>
+<div class="sheet" id="sheet-picker">
+  <div class="sheet-grabber"></div>
+  <div class="sheet-header">
+    <h3 class="sheet-title" id="sheet-picker-title">Пара</h3>
+    <button class="sheet-close" id="btn-close-picker">Закрыть</button>
+  </div>
+  <input type="search" id="picker-search" class="search-input" placeholder="Поиск предмета...">
+  <div class="subjs-picker-list" id="picker-list"></div>
+  <div style="display:flex;gap:8px;margin-top:8px;">
+    <button class="btn-primary" id="btn-picker-create-new" style="flex:1;">+ Создать новый</button>
+    <button class="btn-primary" id="btn-picker-clear-slot" style="flex:1;background:var(--danger);color:#fff;">Убрать пару</button>
+  </div>
+</div>
+
+<!-- ================= BOTTOM SHEET: SUBJECT FORM ================= -->
+<div class="sheet-backdrop" id="sheet-subject-backdrop"></div>
+<div class="sheet" id="sheet-subject">
+  <div class="sheet-grabber"></div>
+  <div class="sheet-header">
+    <h3 class="sheet-title" id="sheet-subject-title">Предмет</h3>
+    <button class="sheet-close" id="btn-close-subject">Закрыть</button>
+  </div>
+  <form id="subject-form">
+    <input type="hidden" id="sub-id">
+    <div class="form-group">
+      <label for="sub-name">Название предмета</label>
+      <input type="text" id="sub-name" class="input-text" placeholder="например, История России" required>
+    </div>
+    <div class="form-group">
+      <label for="sub-short">Кратко для сетки (до 15 симв.)</label>
+      <input type="text" id="sub-short" class="input-text" placeholder="например, Ист. Рос." required maxlength="20">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" class="form-group">
+      <div>
+        <label for="sub-type">Тип</label>
+        <select id="sub-type" class="input-text">
+          <option value="">Без типа</option>
+          <option value="лк">Лекция (лк)</option>
+          <option value="пр">Практика (пр)</option>
+        </select>
+      </div>
+      <div>
+        <label for="sub-venue">Тип локации</label>
+        <select id="sub-venue" class="input-text">
+          <option value="r">Аудитория</option>
+          <option value="g">Спортзал</option>
+          <option value="s">Стадион</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="sub-teacher">Преподаватель</label>
+      <input type="text" id="sub-teacher" class="input-text" placeholder="Фамилия Имя Отчество">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" class="form-group">
+      <div>
+        <label for="sub-building">Корпус</label>
+        <input type="text" id="sub-building" class="input-text" placeholder="например, к2">
+      </div>
+      <div>
+        <label for="sub-room">Аудитория / Зал</label>
+        <input type="text" id="sub-room" class="input-text" placeholder="например, 315 или спортзал">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button type="submit" class="btn-primary" style="flex:1;">Сохранить предмет</button>
+      <button type="button" id="btn-delete-subject" class="btn-primary" style="flex:0 0 auto;background:var(--danger);color:#fff;display:none;">Удалить</button>
+    </div>
+  </form>
+</div>
+
+<!-- ================= BOTTOM SHEET: OVERRIDE FORM ================= -->
+<div class="sheet-backdrop" id="sheet-override-backdrop"></div>
+<div class="sheet" id="sheet-override">
+  <div class="sheet-grabber"></div>
+  <div class="sheet-header">
+    <h3 class="sheet-title">Новая замена / отмена</h3>
+    <button class="sheet-close" id="btn-close-override">Закрыть</button>
+  </div>
+  <form id="override-form">
+    <div class="form-group">
+      <label for="ov-date">Дата</label>
+      <input type="date" id="ov-date" class="input-text" required>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;" class="form-group">
+      <div>
+        <label for="ov-slot">Пара</label>
+        <select id="ov-slot" class="input-text">
+          <option value="0">1 пара (08:00)</option>
+          <option value="1">2 пара (09:40)</option>
+          <option value="2">3 пара (11:25)</option>
+          <option value="3">4 пара (13:05)</option>
+        </select>
+      </div>
+      <div>
+        <label for="ov-action">Действие</label>
+        <select id="ov-action" class="input-text">
+          <option value="cancel">Отменить пару</option>
+          <option value="replace">Заменить на предмет</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" id="ov-subject-wrap" style="display:none;">
+      <label for="ov-subject-select">Новый предмет</label>
+      <select id="ov-subject-select" class="input-text"></select>
+    </div>
+    <div class="form-group">
+      <label for="ov-note">Причина / Примечание</label>
+      <input type="text" id="ov-note" class="input-text" placeholder="например, преподаватель на больничном" maxlength="150">
+    </div>
+    <button type="submit" class="btn-primary" style="margin-top:10px;">Сохранить замену</button>
+  </form>
+</div>
+
+<!-- ================= PREVIEW MODAL ================= -->
+<div class="preview-modal" id="preview-modal">
+  <div class="preview-bar">
+    <div>
+      <span class="preview-badge">● Предпросмотр черновика</span>
+      <div style="font-size:.78rem;opacity:.8;">Так расписание увидят студенты</div>
+    </div>
+    <button class="btn-primary" id="btn-close-preview" style="width:auto;height:32px;padding:0 12px;font-size:.8rem;">Закрыть</button>
+  </div>
+  <div id="preview-render-area"></div>
+</div>
+
+<!-- ================= QR CODE MODAL ================= -->
+<div class="sheet-backdrop" id="sheet-qr-backdrop"></div>
+<div class="sheet" id="sheet-qr" style="text-align:center;">
+  <div class="sheet-grabber"></div>
+  <div class="sheet-header">
+    <h3 class="sheet-title">QR-код расписания</h3>
+    <button class="sheet-close" id="btn-close-qr">Закрыть</button>
+  </div>
+  <p style="font-size:.85rem;color:var(--mute);margin-bottom:16px;">
+    Покажите старосте или группе, чтобы они отсканировали и сохранили ссылку.
+  </p>
+  <div id="qr-container" style="display:flex;justify-content:center;margin-bottom:16px;"></div>
+  <button class="btn-primary" id="btn-copy-public-link">Скопировать ссылку</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= STATE & UTILITIES ================= */
+const DN=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const DS=['Пн','Вт','Ср','Чт','Пт','Сб'];
+
+let state = {
+  draft: null,
+  published: null,
+  isDirty: false,
+  selectedDay: 0,
+  historyStack: [],
+  historyIdx: -1,
+  activeSlotTarget: null, // { day, slot }
+  dragSource: null        // { day, slot }
+};
+
+const $ = sel => document.querySelector(sel);
+const $$ = sel => document.querySelectorAll(sel);
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('on');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('on'), 2500);
+}
+
+/* ================= UNDO / REDO ================= */
+function recordHistory() {
+  if (!state.draft) return;
+  // Truncate future if in middle of stack
+  state.historyStack = state.historyStack.slice(0, state.historyIdx + 1);
+  state.historyStack.push(JSON.parse(JSON.stringify(state.draft)));
+  // Limit to 25 states
+  if (state.historyStack.length > 25) {
+    state.historyStack.shift();
+  }
+  state.historyIdx = state.historyStack.length - 1;
+  updateUndoRedoButtons();
+}
+
+function undo() {
+  if (state.historyIdx > 0) {
+    state.historyIdx--;
+    state.draft = JSON.parse(JSON.stringify(state.historyStack[state.historyIdx]));
+    markDirty();
+    renderAll();
+    updateUndoRedoButtons();
+    autoSaveDraft();
+    toast('Действие отменено');
+  }
+}
+
+function redo() {
+  if (state.historyIdx < state.historyStack.length - 1) {
+    state.historyIdx++;
+    state.draft = JSON.parse(JSON.stringify(state.historyStack[state.historyIdx]));
+    markDirty();
+    renderAll();
+    updateUndoRedoButtons();
+    autoSaveDraft();
+    toast('Действие возвращено');
+  }
+}
+
+function updateUndoRedoButtons() {
+  $('#btn-undo').disabled = state.historyIdx <= 0;
+  $('#btn-redo').disabled = state.historyIdx >= state.historyStack.length - 1;
+}
+
+/* ================= DIRTY STATE & AUTOSAVE ================= */
+let autoSaveTimer = null;
+function markDirty() {
+  state.isDirty = true;
+  $('#status-dot').className = 'status-dot dirty';
+  $('#status-text').textContent = 'Есть правки';
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(autoSaveDraft, 800);
+}
+
+function markClean() {
+  state.isDirty = false;
+  $('#status-dot').className = 'status-dot';
+  $('#status-text').textContent = 'Опубликовано';
+}
+
+async function autoSaveDraft() {
+  if (!state.draft) return;
+  try {
+    const res = await fetch('/api/draft', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.draft)
+    });
+    if (!res.ok) {
+      console.warn('Draft autosave error:', res.status);
+    }
+  } catch (e) {
+    console.warn('Network autosave error', e);
+  }
+}
+
+window.addEventListener('beforeunload', e => {
+  if (state.isDirty) {
+    e.preventDefault();
+    e.returnValue = 'Есть неопубликованные изменения в расписании.';
+  }
+});
+
+/* ================= AUTHENTICATION ================= */
+async function checkAuth() {
+  try {
+    const res = await fetch('/api/draft');
+    if (res.ok) {
+      const data = await res.json();
+      onLoginSuccess(data);
+    } else {
+      showLoginScreen();
+    }
+  } catch (e) {
+    showLoginScreen();
+  }
+}
+
+function showLoginScreen() {
+  $('#login-screen').classList.remove('hidden');
+  $('#app-screen').classList.add('hidden');
+  $('#bottom-bar').classList.add('hidden');
+}
+
+function onLoginSuccess(data) {
+  state.draft = data.draft;
+  state.published = data.draft; // base reference
+  state.historyStack = [JSON.parse(JSON.stringify(state.draft))];
+  state.historyIdx = 0;
+
+  if (data.isDirty) {
+    markDirty();
+  } else {
+    markClean();
+  }
+
+  $('#login-screen').classList.add('hidden');
+  $('#app-screen').classList.remove('hidden');
+  $('#bottom-bar').classList.remove('hidden');
+
+  setGreeting();
+  updateHeaderUpdated(data.publishedUpdatedAt);
+  renderAll();
+  updateUndoRedoButtons();
+}
+
+$('#login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const password = $('#password').value;
+  const btn = $('#btn-login-submit');
+  const errEl = $('#login-error');
+
+  btn.disabled = true;
+  btn.textContent = 'Проверка...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      await checkAuth();
+    } else {
+      errEl.textContent = data.error || 'Неверный пароль или доступ заблокирован.';
+      errEl.style.display = 'block';
+    }
+  } catch (err) {
+    errEl.textContent = 'Ошибка сети. Проверьте интернет-соединение.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Войти';
+  }
+});
+
+$('#btn-toggle-pwd').addEventListener('click', () => {
+  const inp = $('#password');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+});
+
+$('#btn-logout').addEventListener('click', async () => {
+  await fetch('/api/logout', { method: 'POST' });
+  location.reload();
+});
+
+/* ================= GREETING & HEADER ================= */
+function setGreeting() {
+  const h = new Date().getHours();
+  let g = 'Привет, староста';
+  if (h >= 5 && h < 12) g = 'Доброе утро, староста';
+  else if (h >= 12 && h < 18) g = 'Добрый день, староста';
+  else if (h >= 18 && h < 23) g = 'Добрый вечер, староста';
+  else g = 'Доброй ночи, староста';
+  $('#hdr-greeting').textContent = g;
+}
+
+function updateHeaderUpdated(isoDate) {
+  if (!isoDate) {
+    $('#hdr-updated').textContent = 'Версия: актуальна';
+    return;
+  }
+  const d = new Date(isoDate);
+  const diffDays = Math.floor((Date.now() - d.getTime()) / (1000 * 60 * 60 * 24));
+  let txt = 'Обновлено сегодня';
+  if (diffDays === 1) txt = 'Обновлено вчера';
+  else if (diffDays > 1) txt = `Обновлено ${diffDays} дн. назад`;
+  $('#hdr-updated').textContent = txt;
+}
+
+/* ================= NAVIGATION TABS ================= */
+$$('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    $$('.nav-tab').forEach(t => t.setAttribute('aria-selected', 'false'));
+    tab.setAttribute('aria-selected', 'true');
+    const tabName = tab.dataset.tab;
+
+    ['schedule', 'subjects', 'overrides', 'bells', 'history'].forEach(n => {
+      $(`#tab-content-${n}`).classList.toggle('hidden', n !== tabName);
+    });
+
+    if (tabName === 'history') loadHistory();
+  });
+});
+
+/* Day switcher */
+$$('.day-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.day-tab').forEach(b => b.setAttribute('aria-selected', 'false'));
+    btn.setAttribute('aria-selected', 'true');
+    const d = btn.dataset.day;
+
+    if (d === 'w') {
+      $('#day-single-view').classList.add('hidden');
+      $('#week-grid-view').classList.remove('hidden');
+      renderWeekGrid();
+    } else {
+      state.selectedDay = parseInt(d, 10);
+      $('#day-single-view').classList.remove('hidden');
+      $('#week-grid-view').classList.add('hidden');
+      renderDayView();
+    }
+  });
+});
+
+/* ================= RENDERING ================= */
+function getSubject(id) {
+  if (!id || !state.draft) return null;
+  return state.draft.subjects.find(s => s.id === id) || null;
+}
+
+function renderAll() {
+  checkSoftWarnings();
+  renderDayView();
+  renderSubjectsList();
+  renderOverridesList();
+  renderBellsList();
+}
+
+/* Soft conflict detection */
+function checkSoftWarnings() {
+  const box = $('#warnings-box');
+  box.innerHTML = '';
+  if (!state.draft) return;
+
+  const warnings = [];
+
+  // Check subjects without teacher or room
+  state.draft.subjects.forEach(s => {
+    if (!s.place || s.place.trim() === '') {
+      warnings.push(`Предмет «${s.name}» не имеет указанного места проведения.`);
+    }
+  });
+
+  if (warnings.length > 0) {
+    box.style.display = 'flex';
+    warnings.slice(0, 3).forEach(w => {
+      const div = document.createElement('div');
+      div.className = 'warn-item';
+      div.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>${escapeHtml(w)}</span>`;
+      box.appendChild(div);
+    });
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+/* Single Day Render */
+function renderDayView() {
+  const d = state.selectedDay;
+  $('#current-day-name').textContent = DN[d];
+  const daySlots = state.draft.week[d];
+  const activeCount = daySlots.filter(Boolean).length;
+  $('#current-day-count').textContent = `${activeCount} ${activeCount === 1 ? 'пара' : activeCount < 5 ? 'пары' : 'пар'}`;
+
+  const container = $('#slots-container');
+  container.innerHTML = '';
+
+  for (let slot = 0; slot < 4; slot++) {
+    const subId = daySlots[slot];
+    const sub = getSubject(subId);
+    const times = state.draft.bells[slot];
+
+    const card = document.createElement('div');
+    card.dataset.day = d;
+    card.dataset.slot = slot;
+
+    if (!sub) {
+      card.className = 'slot-block empty';
+      card.innerHTML = `
+        <div class="slot-time" style="font-size:1.15rem;">${slot + 1} пара · ${times[0]}–${times[1]}</div>
+        <div class="slot-empty-title">
+          <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Добавить пару</span>
+        </div>
+      `;
+      card.addEventListener('click', () => openSubjectPicker(d, slot));
+    } else {
+      card.className = `slot-block v-${sub.venue || 'r'}`;
+      card.setAttribute('draggable', 'true');
+
+      card.innerHTML = `
+        <div class="slot-top">
+          <div class="slot-time">${slot + 1} пара · ${times[0]}–${times[1]}</div>
+          <div class="slot-actions">
+            <button class="btn-slot-act btn-move-up" title="Переместить выше" aria-label="Переместить пару выше" ${slot === 0 ? 'disabled style="opacity:.3;"' : ''}>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <button class="btn-slot-act btn-move-down" title="Переместить ниже" aria-label="Переместить пару ниже" ${slot === 3 ? 'disabled style="opacity:.3;"' : ''}>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="btn-slot-act btn-dup" title="Дублировать в другой день" aria-label="Дублировать в другой день">
+              <svg class="icon" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="slot-main">
+          <div class="slot-name">
+            ${escapeHtml(sub.name)}
+            ${sub.type ? `<span class="slot-tag">${escapeHtml(sub.type)}</span>` : ''}
+          </div>
+          <div class="slot-place">${escapeHtml(sub.place || 'Место не указано')}</div>
+          <div class="slot-teacher">${escapeHtml(sub.teacher || 'Преподаватель не указан')}</div>
+        </div>
+      `;
+
+      // Click card body to edit
+      card.addEventListener('click', e => {
+        if (e.target.closest('.slot-actions')) return;
+        openSubjectPicker(d, slot);
+      });
+
+      // Actions buttons
+      card.querySelector('.btn-move-up')?.addEventListener('click', e => {
+        e.stopPropagation();
+        swapSlots(d, slot, d, slot - 1);
+      });
+      card.querySelector('.btn-move-down')?.addEventListener('click', e => {
+        e.stopPropagation();
+        swapSlots(d, slot, d, slot + 1);
+      });
+      card.querySelector('.btn-dup')?.addEventListener('click', e => {
+        e.stopPropagation();
+        promptDuplicate(d, slot);
+      });
+
+      // Drag & Drop events
+      attachDragEvents(card, d, slot);
+    }
+
+    container.appendChild(card);
+  }
+}
+
+/* Week Grid Render */
+function renderWeekGrid() {
+  const container = $('#week-grid-table');
+  container.innerHTML = '<span></span>' + DS.map(n => `<span class="h">${n}</span>`).join('');
+
+  for (let slot = 0; slot < 4; slot++) {
+    container.innerHTML += `<span class="rl">${slot + 1}</span>`;
+    for (let d = 0; d < 6; d++) {
+      const subId = state.draft.week[d][slot];
+      const sub = getSubject(subId);
+      const btn = document.createElement('button');
+      btn.dataset.day = d;
+      btn.dataset.slot = slot;
+
+      if (sub) {
+        btn.className = `wk-c v-${sub.venue || 'r'}`;
+        btn.textContent = sub.short || sub.name;
+      } else {
+        btn.className = 'wk-c empty';
+        btn.textContent = '+';
+      }
+      btn.addEventListener('click', () => openSubjectPicker(d, slot));
+      container.appendChild(btn);
+    }
+  }
+}
+
+/* Swap slots between any day/slot */
+function swapSlots(d1, s1, d2, s2) {
+  if (d2 < 0 || d2 > 5 || s2 < 0 || s2 > 3) return;
+  recordHistory();
+  const temp = state.draft.week[d1][s1];
+  state.draft.week[d1][s1] = state.draft.week[d2][s2];
+  state.draft.week[d2][s2] = temp;
+  markDirty();
+  renderAll();
+}
+
+/* Duplicate slot */
+function promptDuplicate(fromDay, fromSlot) {
+  const subId = state.draft.week[fromDay][fromSlot];
+  if (!subId) return;
+
+  const targetDayStr = prompt('В какой день скопировать? Введите 1 (Пн) - 6 (Сб):', String(fromDay + 1));
+  if (!targetDayStr) return;
+  const targetDay = parseInt(targetDayStr, 10) - 1;
+  if (isNaN(targetDay) || targetDay < 0 || targetDay > 5) {
+    alert('Неверный день.');
+    return;
+  }
+
+  const targetSlotStr = prompt(`На какую пару в ${DN[targetDay]} поставить? Введите 1 - 4:`, String(fromSlot + 1));
+  if (!targetSlotStr) return;
+  const targetSlot = parseInt(targetSlotStr, 10) - 1;
+  if (isNaN(targetSlot) || targetSlot < 0 || targetSlot > 3) {
+    alert('Неверный номер пары.');
+    return;
+  }
+
+  recordHistory();
+  state.draft.week[targetDay][targetSlot] = subId;
+  markDirty();
+  renderAll();
+  toast(`Скопировано в ${DN[targetDay]}, ${targetSlot + 1} пара`);
+}
+
+/* Drag and Drop with Touch support */
+function attachDragEvents(el, day, slot) {
+  el.addEventListener('dragstart', e => {
+    state.dragSource = { day, slot };
+    el.classList.add('dragging');
+    e.dataTransfer.setData('text/plain', `${day},${slot}`);
+  });
+
+  el.addEventListener('dragend', () => {
+    el.classList.remove('dragging');
+    $$('.slot-block').forEach(b => b.classList.remove('drag-over'));
+  });
+
+  el.addEventListener('dragover', e => {
+    e.preventDefault();
+    el.classList.add('drag-over');
+  });
+
+  el.addEventListener('dragleave', () => {
+    el.classList.remove('drag-over');
+  });
+
+  el.addEventListener('drop', e => {
+    e.preventDefault();
+    el.classList.remove('drag-over');
+    if (!state.dragSource) return;
+    const { day: d1, slot: s1 } = state.dragSource;
+    state.dragSource = null;
+    if (d1 === day && s1 === slot) return;
+    swapSlots(d1, s1, day, slot);
+    toast('Пары поменялись местами');
+  });
+}
+
+/* ================= SUBJECT PICKER SHEET ================= */
+function openSubjectPicker(day, slot) {
+  state.activeSlotTarget = { day, slot };
+  const currentSubId = state.draft.week[day][slot];
+  $('#sheet-picker-title').textContent = `${DN[day]} · ${slot + 1} пара`;
+  $('#picker-search').value = '';
+  renderPickerList('');
+
+  $('#sheet-picker-backdrop').classList.add('active');
+  $('#sheet-picker').classList.add('active');
+}
+
+function closeSubjectPicker() {
+  $('#sheet-picker-backdrop').classList.remove('active');
+  $('#sheet-picker').classList.remove('active');
+  state.activeSlotTarget = null;
+}
+
+$('#btn-close-picker').addEventListener('click', closeSubjectPicker);
+$('#sheet-picker-backdrop').addEventListener('click', closeSubjectPicker);
+
+function renderPickerList(query) {
+  const container = $('#picker-list');
+  container.innerHTML = '';
+  const q = query.toLowerCase().trim();
+
+  const filtered = state.draft.subjects.filter(s => {
+    if (!q) return true;
+    return s.name.toLowerCase().includes(q) ||
+           (s.teacher && s.teacher.toLowerCase().includes(q)) ||
+           (s.place && s.place.toLowerCase().includes(q));
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<p style="font-size:.85rem;color:var(--mute);text-align:center;padding:12px;">Предметы не найдены</p>';
+    return;
+  }
+
+  filtered.forEach(sub => {
+    const btn = document.createElement('button');
+    btn.className = `picker-item v-${sub.venue || 'r'}`;
+    btn.innerHTML = `
+      <h4>${escapeHtml(sub.name)} ${sub.type ? `<span class="slot-tag">${escapeHtml(sub.type)}</span>` : ''}</h4>
+      <p>${escapeHtml(sub.place || 'Место не указано')} · ${escapeHtml(sub.teacher || 'Без преподавателя')}</p>
+    `;
+    btn.addEventListener('click', () => {
+      if (!state.activeSlotTarget) return;
+      recordHistory();
+      const { day, slot } = state.activeSlotTarget;
+      state.draft.week[day][slot] = sub.id;
+      markDirty();
+      closeSubjectPicker();
+      renderAll();
+      toast(`Назначено: ${sub.short || sub.name}`);
+    });
+    container.appendChild(btn);
+  });
+}
+
+$('#picker-search').addEventListener('input', e => {
+  renderPickerList(e.target.value);
+});
+
+$('#btn-picker-clear-slot').addEventListener('click', () => {
+  if (!state.activeSlotTarget) return;
+  recordHistory();
+  const { day, slot } = state.activeSlotTarget;
+  state.draft.week[day][slot] = null;
+  markDirty();
+  closeSubjectPicker();
+  renderAll();
+  toast('Пара убрана');
+});
+
+$('#btn-picker-create-new').addEventListener('click', () => {
+  closeSubjectPicker();
+  openSubjectForm(null);
+});
+
+/* ================= SUBJECTS MANAGEMENT ================= */
+function renderSubjectsList() {
+  const container = $('#subjects-list-container');
+  container.innerHTML = '';
+
+  state.draft.subjects.forEach(sub => {
+    // Count how many times it is used in the schedule
+    let usageCount = 0;
+    state.draft.week.forEach(d => {
+      d.forEach(s => { if (s === sub.id) usageCount++; });
+    });
+
+    const item = document.createElement('div');
+    item.className = `subj-item v-${sub.venue || 'r'}`;
+    item.innerHTML = `
+      <div class="subj-info">
+        <h3>${escapeHtml(sub.name)} ${sub.type ? `<span class="slot-tag">${escapeHtml(sub.type)}</span>` : ''}</h3>
+        <div class="subj-meta">
+          ${escapeHtml(sub.place || '—')} · ${escapeHtml(sub.teacher || '—')}<br>
+          <span style="color:var(--ink);font-weight:600;">В расписании: ${usageCount} ${usageCount === 1 ? 'раз' : 'раза'}</span>
+        </div>
+      </div>
+      <div class="subj-actions">
+        <button class="btn-slot-act btn-edit-subj" title="Редактировать" aria-label="Редактировать предмет">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        </button>
+      </div>
+    `;
+
+    item.querySelector('.btn-edit-subj').addEventListener('click', () => {
+      openSubjectForm(sub);
+    });
+
+    container.appendChild(item);
+  });
+}
+
+function openSubjectForm(sub) {
+  $('#sub-id').value = sub ? sub.id : '';
+  $('#sub-name').value = sub ? sub.name : '';
+  $('#sub-short').value = sub ? sub.short : '';
+  $('#sub-type').value = sub ? (sub.type || '') : '';
+  $('#sub-venue').value = sub ? (sub.venue || 'r') : 'r';
+  $('#sub-teacher').value = sub ? (sub.teacher || '') : '';
+
+  // Parse place into building and room if possible
+  if (sub && sub.place) {
+    const m = sub.place.match(/^(к\d+)\s*·\s*(.*)$/);
+    if (m) {
+      $('#sub-building').value = m[1];
+      $('#sub-room').value = m[2];
+    } else {
+      $('#sub-building').value = '';
+      $('#sub-room').value = sub.place;
+    }
+  } else {
+    $('#sub-building').value = '';
+    $('#sub-room').value = '';
+  }
+
+  $('#sheet-subject-title').textContent = sub ? 'Редактировать предмет' : 'Создать предмет';
+  $('#btn-delete-subject').style.display = sub ? 'block' : 'none';
+
+  $('#sheet-subject-backdrop').classList.add('active');
+  $('#sheet-subject').classList.add('active');
+}
+
+function closeSubjectForm() {
+  $('#sheet-subject-backdrop').classList.remove('active');
+  $('#sheet-subject').classList.remove('active');
+}
+
+$('#btn-close-subject').addEventListener('click', closeSubjectForm);
+$('#sheet-subject-backdrop').addEventListener('click', closeSubjectForm);
+$('#btn-create-subject').addEventListener('click', () => openSubjectForm(null));
+
+$('#subject-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const id = $('#sub-id').value;
+  const name = $('#sub-name').value.trim();
+  const short = $('#sub-short').value.trim();
+  const type = $('#sub-type').value;
+  const venue = $('#sub-venue').value;
+  const teacher = $('#sub-teacher').value.trim();
+  const building = $('#sub-building').value.trim();
+  const room = $('#sub-room').value.trim();
+
+  let place = '';
+  if (building && room) place = `${building} · ${room}`;
+  else place = building || room || '';
+
+  recordHistory();
+
+  if (id) {
+    // Edit existing subject
+    const existing = state.draft.subjects.find(s => s.id === id);
+    if (existing) {
+      existing.name = name;
+      existing.short = short;
+      existing.type = type;
+      existing.venue = venue;
+      existing.teacher = teacher;
+      existing.place = place;
+    }
+    toast('Предмет обновлён');
+  } else {
+    // Create new subject
+    const newId = 's_' + Date.now().toString(36);
+    state.draft.subjects.push({
+      id: newId,
+      name,
+      short,
+      type,
+      venue,
+      teacher,
+      place
+    });
+    toast('Новый предмет создан');
+  }
+
+  markDirty();
+  closeSubjectForm();
+  renderAll();
+});
+
+$('#btn-delete-subject').addEventListener('click', () => {
+  const id = $('#sub-id').value;
+  if (!id) return;
+
+  // Count usage in schedule
+  let usageCount = 0;
+  state.draft.week.forEach(d => {
+    d.forEach(s => { if (s === id) usageCount++; });
+  });
+
+  const confirmMsg = usageCount > 0
+    ? `Предмет стоит в ${usageCount} ${usageCount === 1 ? 'паре' : 'парах'}. Убрать его из расписания и удалить?`
+    : 'Удалить этот предмет?';
+
+  if (!confirm(confirmMsg)) return;
+
+  recordHistory();
+
+  // Remove from week grid
+  state.draft.week.forEach((day, di) => {
+    day.forEach((slot, si) => {
+      if (slot === id) state.draft.week[di][si] = null;
+    });
+  });
+
+  // Remove from subjects list
+  state.draft.subjects = state.draft.subjects.filter(s => s.id !== id);
+
+  markDirty();
+  closeSubjectForm();
+  renderAll();
+  toast('Предмет удалён');
+});
+
+/* ================= OVERRIDES MANAGEMENT ================= */
+function renderOverridesList() {
+  const container = $('#overrides-list-container');
+  container.innerHTML = '';
+  const overrides = state.draft.overrides || [];
+
+  if (overrides.length === 0) {
+    container.innerHTML = '<p style="font-size:.85rem;color:var(--mute);text-align:center;padding:12px;">Активных замен нет</p>';
+    return;
+  }
+
+  overrides.forEach((ov, idx) => {
+    const sub = ov.subjectId ? getSubject(ov.subjectId) : null;
+    const item = document.createElement('div');
+    item.className = 'override-item';
+
+    const actionBadge = ov.action === 'cancel'
+      ? '<span class="ov-badge ov-cancel">Отмена</span>'
+      : '<span class="ov-badge ov-replace">Замена</span>';
+
+    item.innerHTML = `
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+          ${actionBadge}
+          <strong style="font-size:.9rem;">${escapeHtml(ov.date)}</strong>
+          <span style="font-size:.82rem;color:var(--mute);">(${ov.slot + 1} пара)</span>
+        </div>
+        <div style="font-size:.82rem;">
+          ${ov.action === 'replace' && sub ? `Заменено на: <b>${escapeHtml(sub.name)}</b><br>` : ''}
+          ${ov.note ? `Причина: <span style="color:var(--mute);">${escapeHtml(ov.note)}</span>` : ''}
+        </div>
+      </div>
+      <button class="btn-slot-act btn-del-ov" title="Удалить замену" aria-label="Удалить замену">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    `;
+
+    item.querySelector('.btn-del-ov').addEventListener('click', () => {
+      recordHistory();
+      state.draft.overrides.splice(idx, 1);
+      markDirty();
+      renderOverridesList();
+      toast('Замена удалена');
+    });
+
+    container.appendChild(item);
+  });
+}
+
+function openOverrideForm() {
+  // Set default date to today
+  $('#ov-date').value = new Date().toISOString().slice(0, 10);
+  $('#ov-slot').value = '0';
+  $('#ov-action').value = 'cancel';
+  $('#ov-note').value = '';
+
+  const subSelect = $('#ov-subject-select');
+  subSelect.innerHTML = '';
+  state.draft.subjects.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = `${s.name} (${s.place || '—'})`;
+    subSelect.appendChild(opt);
+  });
+
+  $('#ov-subject-wrap').style.display = 'none';
+
+  $('#sheet-override-backdrop').classList.add('active');
+  $('#sheet-override').classList.add('active');
+}
+
+function closeOverrideForm() {
+  $('#sheet-override-backdrop').classList.remove('active');
+  $('#sheet-override').classList.remove('active');
+}
+
+$('#btn-create-override').addEventListener('click', openOverrideForm);
+$('#btn-close-override').addEventListener('click', closeOverrideForm);
+$('#sheet-override-backdrop').addEventListener('click', closeOverrideForm);
+
+$('#ov-action').addEventListener('change', e => {
+  $('#ov-subject-wrap').style.display = e.target.value === 'replace' ? 'block' : 'none';
+});
+
+$('#override-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const date = $('#ov-date').value;
+  const slot = parseInt($('#ov-slot').value, 10);
+  const action = $('#ov-action').value;
+  const subjectId = action === 'replace' ? $('#ov-subject-select').value : null;
+  const note = $('#ov-note').value.trim();
+
+  recordHistory();
+  if (!state.draft.overrides) state.draft.overrides = [];
+
+  state.draft.overrides.push({
+    id: 'ov_' + Date.now().toString(36),
+    date,
+    slot,
+    action,
+    subjectId,
+    note
+  });
+
+  markDirty();
+  closeOverrideForm();
+  renderOverridesList();
+  toast('Замена добавлена');
+});
+
+/* ================= BELLS MANAGEMENT ================= */
+function renderBellsList() {
+  const container = $('#bells-list-container');
+  container.innerHTML = '';
+
+  state.draft.bells.forEach((bell, idx) => {
+    const row = document.createElement('div');
+    row.className = 'bell-row';
+    row.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="bell-num">${idx + 1}</span>
+        <span style="font-size:.85rem;font-weight:600;">пара</span>
+      </div>
+      <div class="bell-inputs">
+        <input type="time" class="bell-input bell-start" data-slot="${idx}" value="${bell[0]}">
+        <span style="color:var(--mute);">–</span>
+        <input type="time" class="bell-input bell-end" data-slot="${idx}" value="${bell[1]}">
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+$('#btn-save-bells').addEventListener('click', () => {
+  recordHistory();
+  const starts = $$('.bell-start');
+  const ends = $$('.bell-end');
+
+  for (let i = 0; i < 4; i++) {
+    state.draft.bells[i][0] = starts[i].value;
+    state.draft.bells[i][1] = ends[i].value;
+  }
+
+  markDirty();
+  renderAll();
+  toast('Расписание звонков сохранено');
+});
+
+/* ================= HISTORY MANAGEMENT ================= */
+async function loadHistory() {
+  const container = $('#history-list-container');
+  container.innerHTML = '<p style="font-size:.85rem;color:var(--mute);text-align:center;padding:12px;">Загрузка...</p>';
+
+  try {
+    const res = await fetch('/api/history');
+    if (!res.ok) throw new Error('Ошибка загрузки');
+    const data = await res.json();
+    const list = data.history || [];
+
+    if (list.length === 0) {
+      container.innerHTML = '<p style="font-size:.85rem;color:var(--mute);text-align:center;padding:12px;">В архиве пока нет сохранённых версий</p>';
+      return;
+    }
+
+    container.innerHTML = '';
+    list.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'history-item';
+      const d = new Date(item.updatedAt);
+      const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+      el.innerHTML = `
+        <div>
+          <span class="history-v">Версия #${item.version}</span>
+          <div class="history-time">${dateStr} · предметов: ${item.subjectsCount || '—'}</div>
+        </div>
+        <button class="btn-primary btn-restore" data-v="${item.version}" style="width:auto;height:34px;padding:0 12px;font-size:.82rem;">Вернуть</button>
+      `;
+
+      el.querySelector('.btn-restore').addEventListener('click', () => restoreVersion(item.version));
+      container.appendChild(el);
+    });
+  } catch (e) {
+    container.innerHTML = '<p style="font-size:.85rem;color:var(--danger);text-align:center;padding:12px;">Не удалось загрузить историю.</p>';
+  }
+}
+
+async function restoreVersion(version) {
+  if (!confirm(`Вы действительно хотите загрузить версию #${version} в черновик?`)) return;
+
+  try {
+    const res = await fetch(`/api/restore/${version}`, { method: 'POST' });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      state.draft = data.draft;
+      recordHistory();
+      markDirty();
+      renderAll();
+      toast(data.message || `Версия #${version} загружена в черновик`);
+    } else {
+      alert(data.error || 'Ошибка восстановления');
+    }
+  } catch (e) {
+    alert('Сетевая ошибка при восстановлении');
+  }
+}
+
+/* ================= PUBLISH & CONFETTI ================= */
+$('#btn-publish').addEventListener('click', async () => {
+  if (!confirm('Опубликовать расписание? Изменения сразу увидят все студенты.')) return;
+
+  const btn = $('#btn-publish');
+  btn.disabled = true;
+  btn.textContent = 'Публикация...';
+
+  try {
+    const res = await fetch('/api/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.draft)
+    });
+
+    const data = await res.json();
+    if (res.ok && data.ok) {
+      markClean();
+      updateHeaderUpdated(data.updatedAt);
+      toast('Опубликовано, студенты уже видят новое расписание');
+      triggerConfetti();
+    } else {
+      alert(data.error || 'Ошибка при публикации.');
+    }
+  } catch (e) {
+    alert('Сетевая ошибка при публикации.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Опубликовать';
+  }
+});
+
+function triggerConfetti() {
+  const colors = ['#CF4A2C', '#1F6B4E', '#44505E', '#FF8A6B', '#EDEFEC'];
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight * 0.7;
+
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('i');
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 50 + Math.random() * 120;
+    p.style.cssText = `position:fixed;left:${centerX}px;top:${centerY}px;width:7px;height:${6+Math.random()*6}px;background:${colors[i%5]};border-radius:2px;pointer-events:none;z-index:999;`;
+    document.body.appendChild(p);
+
+    p.animate([
+      { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+      { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist + 60}px) rotate(${Math.random()*540}deg)`, opacity: 0 }
+    ], { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(.2,.8,.3,1)' })
+    .onfinish = () => p.remove();
+  }
+}
+
+/* ================= PREVIEW MODAL ================= */
+$('#btn-preview').addEventListener('click', () => {
+  renderPreview();
+  $('#preview-modal').classList.add('active');
+});
+
+$('#btn-close-preview').addEventListener('click', () => {
+  $('#preview-modal').classList.remove('active');
+});
+
+function renderPreview() {
+  const area = $('#preview-render-area');
+  area.innerHTML = '';
+
+  for (let d = 0; d < 6; d++) {
+    const daySec = document.createElement('div');
+    daySec.style.cssText = 'background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;';
+    daySec.innerHTML = `<h3 style="font:700 1.3rem/1 var(--disp);text-transform:uppercase;margin-bottom:8px;">${DN[d]}</h3>`;
+
+    const daySlots = state.draft.week[d];
+    let hasAny = false;
+
+    daySlots.forEach((subId, idx) => {
+      const sub = getSubject(subId);
+      if (!sub) return;
+      hasAny = true;
+      const t = state.draft.bells[idx];
+      const p = document.createElement('div');
+      p.style.cssText = `border-left:4px solid var(--${sub.venue || 'r'});padding:4px 8px;margin-bottom:6px;font-size:.85rem;`;
+      p.innerHTML = `<strong>${idx+1}. ${t[0]}</strong> ${escapeHtml(sub.name)} ${sub.type ? `(${escapeHtml(sub.type)})` : ''} · <span style="color:var(--mute);">${escapeHtml(sub.place)}</span>`;
+      daySec.appendChild(p);
+    });
+
+    if (!hasAny) {
+      daySec.innerHTML += '<p style="font-size:.8rem;color:var(--mute);">Пар нет</p>';
+    }
+
+    area.appendChild(daySec);
+  }
+}
+
+/* ================= QR CODE & COPY LINK ================= */
+$('#btn-copy-link').addEventListener('click', () => {
+  const url = location.origin + '/';
+  navigator.clipboard.writeText(url).then(() => {
+    toast('Ссылка скопирована в буфер');
+  }).catch(() => toast('Не удалось скопировать'));
+});
+
+$('#btn-copy-public-link').addEventListener('click', () => {
+  const url = location.origin + '/';
+  navigator.clipboard.writeText(url).then(() => {
+    toast('Ссылка скопирована');
+  });
+});
+
+$('#btn-show-qr').addEventListener('click', () => {
+  const url = location.origin + '/';
+  const qrContainer = $('#qr-container');
+  // Generate lightweight SVG QR code via public image or canvas
+  qrContainer.innerHTML = `
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&bgcolor=FAFAF8&color=17211D"
+         alt="QR код расписания" width="200" height="200" style="border-radius:12px;border:1px solid var(--line);background:#fff;padding:8px;">
+  `;
+  $('#sheet-qr-backdrop').classList.add('active');
+  $('#sheet-qr').classList.add('active');
+});
+
+$('#btn-close-qr').addEventListener('click', () => {
+  $('#sheet-qr-backdrop').classList.remove('active');
+  $('#sheet-qr').classList.remove('active');
+});
+$('#sheet-qr-backdrop').addEventListener('click', () => {
+  $('#sheet-qr-backdrop').classList.remove('active');
+  $('#sheet-qr').classList.remove('active');
+});
+
+/* Undo / Redo listeners */
+$('#btn-undo').addEventListener('click', undo);
+$('#btn-redo').addEventListener('click', redo);
+
+// Keyboard shortcuts for Ctrl+Z and Ctrl+Y
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+    if (e.shiftKey) redo(); else undo();
+  } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+    redo();
+  }
+});
+
+// Initial boot
+checkAuth();
+</script>
+</body>
+</html>

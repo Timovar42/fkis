@@ -41,6 +41,10 @@ header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
 h1{font:700 1.25rem/1 var(--disp);letter-spacing:.02em;text-transform:uppercase}
 header p{font-size:.78rem;color:var(--mute);margin-top:3px}
 header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
+.offline-banner{
+  display:none;font-size:.76rem;color:var(--mute);margin-top:4px;
+}
+.offline-banner.active{display:block}
 
 /* hero */
 .hero{
@@ -127,6 +131,16 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   font-size:.7rem;font-weight:600;color:var(--mute);border:1px solid var(--line);
   border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px;
 }
+.tag-cancel{
+  background:color-mix(in srgb,var(--s) 15%,var(--paper));color:var(--s);
+  border:1px solid color-mix(in srgb,var(--s) 35%,transparent);
+  font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;
+}
+.tag-replace{
+  background:color-mix(in srgb,var(--g) 15%,var(--paper));color:var(--g);
+  border:1px solid color-mix(in srgb,var(--g) 35%,transparent);
+  font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;
+}
 .pl{color:var(--v);font-weight:600;font-size:.9rem;margin-top:3px}
 .th{color:var(--mute);font-size:.83rem;margin-top:1px}
 .dot{
@@ -175,6 +189,8 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
 .card.now .bar{display:block}
 .card.now .tm b::after{content:' идёт';font:600 .7rem Onest;color:var(--v);margin-left:2px}
 .card.past{opacity:.5}
+.card.canceled{opacity:.65;border-left-color:var(--s)}
+.card.canceled .nm{text-decoration:line-through}
 .win{
   border:1px dashed var(--line);border-radius:10px;padding:8px 12px;
   margin-bottom:10px;color:var(--mute);font-size:.85rem;text-align:center;
@@ -219,7 +235,11 @@ footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line
 <body>
 <div class="wrap">
   <header>
-    <div><h1>Расписание</h1><p>1 курс · физическая реабилитация</p></div>
+    <div>
+      <h1>Расписание</h1>
+      <p>1 курс · физическая реабилитация</p>
+      <div id="offline-badge" class="offline-banner">● Нет связи, показана сохранённая версия</div>
+    </div>
     <time id="dt"></time>
   </header>
   <section class="hero" id="hero" role="button" tabindex="0" aria-live="polite"></section>
@@ -232,132 +252,222 @@ footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line
 <div class="toast" id="toast"></div>
 
 <script>
-const T=[['08:00','09:30'],['09:40','11:10'],['11:25','12:55'],['13:05','14:35']];
-const L=(n,s,t,p,w,v)=>({n,s,t,p,w,v});
-const ENG=L('Иностранный язык: английский','Англ. яз.','','Шульга Светлана Ярославовна','к2 · 315','r');
-const AFV=t=>L('Адаптивное ФВ дошкольников и школьников','АФВ дошк.',t,'Торопчина Людмила Генадьевна','к2 · 315','r');
-const FKS=(t,p,w,v)=>L('Физическая культура и спорт','ФКиС',t,p,w,v);
-const ORG=L('Основы российской государственности','Осн. гос-ти','','Осипова С. А.','к2 · 315','r');
-const TOA=L('Теория и организация АФК','Теория АФК','','Граневский Владимир Викторович','к2 · 204','r');
-const IR=L('История России','История России','','Чащина Светлана Фёдоровна','к2 · 315','r');
-const IFK=L('История физической культуры','История ФК','','Мыцыков Николай Владимирович','к2 · 204','r');
-const D=[
- [null,ENG,AFV('лк'),FKS('лк','Кольцов Денис Александрович','к2 · 315','r')],
- [null,L('Футбол и методика преподавания','Футбол','','Мамков Олег Михайлович','Городской стадион','s'),
-  L('Официальный язык: молд. / укр.','Гос. язык','','Мазепа Татьяна Андреевна / Якимович Елена','к2 · 204 / 205','r'),null],
- [L('Гимнастика и методика преподавания','Гимнастика','пр','Черниченко Игорь Павлович','к1 · спортзал','g'),
-  L('Баскетбол и методика преподавания','Баскетбол','пр','Чебан Татьяна Николаевна','к3 · спортзал','g'),
-  FKS('пр','','Городской стадион','s'),null],
- [ORG,L('Введение в профессиональную деятельность','Введение в проф.','','Граневский Владимир Викторович','к2 · 204','r'),ORG,TOA],
- [IR,IR,AFV('пр'),null],
- [IFK,IFK,ENG,TOA]
+/* Default built-in fallback */
+let T = [['08:00','09:30'],['09:40','11:10'],['11:25','12:55'],['13:05','14:35']];
+let D = [
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null, null, null],
+  [null, null, null, null]
 ];
-const DN=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'],DS=['Пн','Вт','Ср','Чт','Пт','Сб'];
-const ACC=['в понедельник','во вторник','в среду','в четверг','в пятницу','в субботу'];
-const $=s=>document.querySelector(s),pad=n=>String(n).padStart(2,'0');
-const M=s=>{const[a,b]=s.split(':');return +a*60+ +b};
-const nowM=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
-const today=(new Date().getDay()+6)%7; // Пн=0 … Вс=6
-let sel=today<6?today:0,dir='';
+let overrides = [];
+let subjectsMap = {};
 
-// Isolated client-side notes in localStorage
-let notes={};
-try{
-  notes=JSON.parse(localStorage.getItem('afk-notes-v2')||localStorage.getItem('afk-notes')||'{}');
-}catch(e){}
-const saveNotes=()=>{
-  try{localStorage.setItem('afk-notes-v2',JSON.stringify(notes))}catch(e){}
+const DN = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const DS = ['Пн','Вт','Ср','Чт','Пт','Сб'];
+const ACC = ['в понедельник','во вторник','в среду','в четверг','в пятницу','в субботу'];
+
+const $ = s => document.querySelector(s);
+const pad = n => String(n).padStart(2,'0');
+const M = s => { const [a,b] = s.split(':'); return +a*60 + +b; };
+const nowM = () => { const n = new Date(); return n.getHours()*60 + n.getMinutes(); };
+const today = (new Date().getDay() + 6) % 7; // Mon=0 … Sun=6
+let sel = today < 6 ? today : 0;
+let dir = '';
+
+// Local client-side notes
+let notes = {};
+try {
+  notes = JSON.parse(localStorage.getItem('afk-notes-v2') || localStorage.getItem('afk-notes') || '{}');
+} catch(e) {}
+const saveNotes = () => {
+  try { localStorage.setItem('afk-notes-v2', JSON.stringify(notes)); } catch(e) {}
 };
 
-const noteKey=(d,i)=>`${d}_${i}`;
-const lessons=d=>D[d].map((l,i)=>l&&{...l,i}).filter(Boolean);
-const tshort=p=>p?p.split(' / ').map(x=>{const a=x.trim().split(/\s+/);return a.length>=3?`${a[0]} ${a[1][0]}. ${a[2][0]}.`:x}).join(' / '):'преподаватель не указан';
-const full=w=>w.replace(/^к(\d) · (\d.*)$/,'Корпус $1, ауд. $2').replace(/^к(\d) · /,'Корпус $1, ');
+const noteKey = (d, i) => `${d}_${i}`;
 
-$('#dt').textContent=new Intl.DateTimeFormat('ru',{weekday:'short',day:'numeric',month:'long'}).format(new Date());
+function getLocalDateStr(dateObj = new Date()) {
+  const y = dateObj.getFullYear();
+  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const d = String(dateObj.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getDateForWeekDay(dayIndex) {
+  const now = new Date();
+  const currentDay = (now.getDay() + 6) % 7;
+  const diff = dayIndex - currentDay;
+  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+  return getLocalDateStr(target);
+}
+
+function getOverride(dayIndex, slotIndex) {
+  const dateStr = getDateForWeekDay(dayIndex);
+  return overrides.find(ov => ov.date === dateStr && ov.slot === slotIndex) || null;
+}
+
+function getSlotData(dayIndex, slotIndex) {
+  const base = D[dayIndex]?.[slotIndex] || null;
+  const ov = getOverride(dayIndex, slotIndex);
+  if (!ov) return { subject: base, override: null };
+
+  if (ov.action === 'cancel') {
+    return { subject: base, override: ov, canceled: true };
+  } else if (ov.action === 'replace') {
+    const sub = subjectsMap[ov.subjectId] || base;
+    return { subject: sub, override: ov, replaced: true };
+  }
+  return { subject: base, override: ov };
+}
+
+const lessons = d => {
+  const list = [];
+  for (let i = 0; i < 4; i++) {
+    const data = getSlotData(d, i);
+    if (data.subject) {
+      list.push({ ...data.subject, i, canceled: data.canceled, replaced: data.replaced, override: data.override });
+    }
+  }
+  return list;
+};
+
+const tshort = p => p ? p.split(' / ').map(x => {
+  const a = x.trim().split(/\s+/);
+  return a.length >= 3 ? `${a[0]} ${a[1][0]}. ${a[2][0]}.` : x;
+}).join(' / ') : 'преподаватель не указан';
+
+const full = w => (w || '').replace(/^к(\d) · (\d.*)$/,'Корпус $1, ауд. $2').replace(/^к(\d) · /,'Корпус $1, ');
+
+$('#dt').textContent = new Intl.DateTimeFormat('ru', { weekday: 'short', day: 'numeric', month: 'long' }).format(new Date());
 
 /* ---------- hero ---------- */
-let heroState='';
-function hero(){
-  const nm=nowM(),Ls=today<6?lessons(today):[];
-  const cur=Ls.find(l=>nm>=M(T[l.i][0])&&nm<M(T[l.i][1])),nxt=Ls.find(l=>M(T[l.i][0])>nm);
-  const info=l=>`<div><div class="h-nm">${l.n}${l.t?' ('+l.t+')':''}</div><div class="h-pl">${l.w}</div></div>`;
-  let lbl,main,cd='',pr='',then='';
-  if(cur){
-    const left=M(T[cur.i][1])-nm,pct=Math.round((nm-M(T[cur.i][0]))/90*100);
-    heroState='live';lbl='Идёт сейчас';main=info(cur);
-    cd=`<b>${left}</b><span>мин до конца</span>`;pr=`<div class="pr"><i style="width:${pct}%"></i></div>`;
-    if(nxt)then=`Дальше в ${T[nxt.i][0]}: ${nxt.s}, ${nxt.w}`;
-  }else if(nxt){
-    const df=M(T[nxt.i][0])-nm;heroState='next';lbl=Ls[0]===nxt?'Первая пара':'Следующая пара';main=info(nxt);
-    cd=df<60?`<b>${df}</b><span>мин до начала</span>`:`<b>${Math.floor(df/60)}:${pad(df%60)}</b><span>ч до начала</span>`;
-  }else{
-    heroState='done';
-    let n=null;for(let k=1;k<=7&&!n;k++){const d=(today+k)%7;if(d<6&&lessons(d).length)n={d,k,l:lessons(d)[0]};}
-    lbl=Ls.length?'На сегодня всё':'Сегодня пар нет';
-    main=`<div><div class="h-nm">${Ls.length?'Можно выдыхать 🎉':'Выходной'}</div>${n?`<div class="then" style="margin-top:6px">${n.k==1?'Завтра':ACC[n.d][0].toUpperCase()+ACC[n.d].slice(1)} в ${T[n.l.i][0]}: ${n.l.s}, ${n.l.w}</div>`:''}</div>`;
+let heroState = '';
+function hero() {
+  const nm = nowM();
+  const Ls = today < 6 ? lessons(today) : [];
+  // Active/non-canceled lessons for time calculation
+  const cur = Ls.find(l => nm >= M(T[l.i][0]) && nm < M(T[l.i][1]));
+  const nxt = Ls.find(l => M(T[l.i][0]) > nm && !l.canceled);
+
+  const info = l => {
+    let tag = '';
+    if (l.canceled) tag = ' <span class="tag-cancel">Отменена</span>';
+    else if (l.replaced) tag = ' <span class="tag-replace">Замена</span>';
+    else if (l.type) tag = ` (${l.type})`;
+
+    return `<div><div class="h-nm">${l.name}${tag}</div><div class="h-pl">${l.place || '—'}</div></div>`;
+  };
+
+  let lbl, main, cd='', pr='', then='';
+  if (cur) {
+    const left = M(T[cur.i][1]) - nm;
+    const pct = Math.round((nm - M(T[cur.i][0])) / 90 * 100);
+    heroState = 'live';
+    lbl = cur.canceled ? 'Идёт пара (отменена)' : 'Идёт сейчас';
+    main = info(cur);
+    cd = `<b>${left}</b><span>мин до конца</span>`;
+    pr = `<div class="pr"><i style="width:${pct}%"></i></div>`;
+    if (nxt) then = `Дальше в ${T[nxt.i][0]}: ${nxt.short || nxt.name}, ${nxt.place || ''}`;
+  } else if (nxt) {
+    const df = M(T[nxt.i][0]) - nm;
+    heroState = 'next';
+    lbl = Ls[0] === nxt ? 'Первая пара' : 'Следующая пара';
+    main = info(nxt);
+    cd = df < 60 ? `<b>${df}</b><span>мин до начала</span>` : `<b>${Math.floor(df/60)}:${pad(df%60)}</b><span>ч до начала</span>`;
+  } else {
+    heroState = 'done';
+    let n = null;
+    for (let k = 1; k <= 7 && !n; k++) {
+      const d = (today + k) % 7;
+      if (d < 6 && lessons(d).length) n = { d, k, l: lessons(d).find(x => !x.canceled) || lessons(d)[0] };
+    }
+    lbl = Ls.length ? 'На сегодня всё' : 'Сегодня пар нет';
+    main = `<div><div class="h-nm">${Ls.length ? 'Можно выдыхать 🎉' : 'Выходной'}</div>${n ? `<div class="then" style="margin-top:6px">${n.k == 1 ? 'Завтра' : ACC[n.d][0].toUpperCase() + ACC[n.d].slice(1)} в ${T[n.l.i][0]}: ${n.l.short || n.l.name}, ${n.l.place || ''}</div>` : ''}</div>`;
   }
-  const h=$('#hero');h.dataset.st=heroState;
-  h.innerHTML=`<div class="lbl">${lbl}</div><div class="row">${main}<div class="cd">${cd}</div></div>${pr}${then?`<div class="then">${then}</div>`:''}`;
+  const h = $('#hero');
+  h.dataset.st = heroState;
+  h.innerHTML = `<div class="lbl">${lbl}</div><div class="row">${main}<div class="cd">${cd}</div></div>${pr}${then ? `<div class="then">${then}</div>` : ''}`;
 }
-$('#hero').onclick=e=>{
-  if(heroState==='done')return burst(e.clientX,e.clientY);
-  if(today<6&&sel!==today){dir=today<sel?'l':'r';sel=today;render()}
+
+$('#hero').onclick = e => {
+  if (heroState === 'done') return burst(e.clientX, e.clientY);
+  if (today < 6 && sel !== today) { dir = today < sel ? 'l' : 'r'; sel = today; render(); }
 };
-$('#hero').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('#hero').click()}};
+$('#hero').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#hero').click(); } };
 
 /* ---------- tabs ---------- */
-function tabs(){
-  const wk='<svg viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="1" width="7" height="7" rx="2"/><rect x="10" y="1" width="7" height="7" rx="2"/><rect x="1" y="10" width="7" height="7" rx="2"/><rect x="10" y="10" width="7" height="7" rx="2"/></svg>';
-  $('#tabs').innerHTML=DS.map((n,d)=>`<button class="tab${d===today?' today':''}" role="tab" data-d="${d}" aria-selected="${sel===d}" aria-label="${DN[d]}">${n}<span class="ticks">${D[d].map(l=>`<i class="${l?'on v-'+l.v:''}"></i>`).join('')}</span></button>`).join('')
-   +`<button class="tab" role="tab" data-d="w" aria-selected="${sel==='w'}" aria-label="Вся неделя">${wk}<span style="font-size:.7rem;font-weight:600">неделя</span></button>`;
+function tabs() {
+  const wk = '<svg viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="1" width="7" height="7" rx="2"/><rect x="10" y="1" width="7" height="7" rx="2"/><rect x="1" y="10" width="7" height="7" rx="2"/><rect x="10" y="10" width="7" height="7" rx="2"/></svg>';
+  $('#tabs').innerHTML = DS.map((n, d) => `<button class="tab${d === today ? ' today' : ''}" role="tab" data-d="${d}" aria-selected="${sel === d}" aria-label="${DN[d]}">${n}<span class="ticks">${[0,1,2,3].map(i => {
+    const s = getSlotData(d, i);
+    return `<i class="${s.subject ? 'on v-' + (s.subject.venue || 'r') : ''}"></i>`;
+  }).join('')}</span></button>`).join('')
+   + `<button class="tab" role="tab" data-d="w" aria-selected="${sel === 'w'}" aria-label="Вся неделя">${wk}<span style="font-size:.7rem;font-weight:600">неделя</span></button>`;
 }
-$('#tabs').onclick=e=>{
-  const b=e.target.closest('.tab');if(!b)return;
-  const d=b.dataset.d==='w'?'w':+b.dataset.d;if(d===sel)return;
-  dir=d==='w'||(sel!=='w'&&d>sel)?'r':'l';sel=d;render();
+
+$('#tabs').onclick = e => {
+  const b = e.target.closest('.tab'); if (!b) return;
+  const d = b.dataset.d === 'w' ? 'w' : +b.dataset.d; if (d === sel) return;
+  dir = d === 'w' || (sel !== 'w' && d > sel) ? 'r' : 'l'; sel = d; render();
 };
 
 /* ---------- day view ---------- */
-function dayView(d){
-  const Ls=lessons(d);
-  if(!Ls.length)return `<div class="dh"><h2>${DN[d]}</h2><span>Пар нет</span></div>`;
-  const first=Ls[0].i,last=Ls[Ls.length-1].i;
-  const hints=[];
-  if(first>0)hints.push(`Первой пары нет, приходить к <b>${T[first][0]}</b>`);
-  if(Ls.some(l=>l.v==='s'))hints.push(`<b>Стадион на улице:</b> форма и одежда по погоде`);
-  else if(Ls.some(l=>l.v==='g'))hints.push(`<b>Нужна спортивная форма</b>`);
-  if(!hints.length)hints.push(d===5?'Суббота, финишная прямая':Ls.length===4?'Четыре пары подряд, возьми перекус':`Заканчиваем в ${T[last][1]}`);
+function dayView(d) {
+  const Ls = lessons(d);
+  if (!Ls.length) return `<div class="dh"><h2>${DN[d]}</h2><span>Пар нет</span></div>`;
+  const first = Ls[0].i, last = Ls[Ls.length - 1].i;
+  const hints = [];
+  if (first > 0) hints.push(`Первой пары нет, приходить к <b>${T[first][0]}</b>`);
+  if (Ls.some(l => l.venue === 's')) hints.push(`<b>Стадион на улице:</b> форма и одежда по погоде`);
+  else if (Ls.some(l => l.venue === 'g')) hints.push(`<b>Нужна спортивная форма</b>`);
+  if (!hints.length) hints.push(d === 5 ? 'Суббота, финишная прямая' : Ls.length === 4 ? 'Четыре пары подряд, возьми перекус' : `Заканчиваем в ${T[last][1]}`);
 
-  let h=`<div class="dh"><h2>${DN[d]}</h2><span>${Ls.length} ${Ls.length>1?'пары':'пара'} · ${T[first][0]}–${T[last][1]}</span><button id="cp">Скопировать</button></div><p class="hint">${hints.slice(0,2).join('<br>')}</p>`;
-  for(let i=first;i<=last;i++){
-    const l=D[d][i];
-    if(!l){h+=`<div class="win">Окно ${T[i][0]}–${T[i][1]}</div>`;continue}
-    const k=noteKey(d,i);
-    const hasNote=!!(notes[k]||notes[l.n]);
-    const noteVal=notes[k]||notes[l.n]||'';
+  let h = `<div class="dh"><h2>${DN[d]}</h2><span>${Ls.length} ${Ls.length > 1 ? 'пары' : 'пара'} · ${T[first][0]}–${T[last][1]}</span><button id="cp">Скопировать</button></div><p class="hint">${hints.slice(0,2).join('<br>')}</p>`;
 
-    h+=`<article class="card v-${l.v}${hasNote?' has':''}" data-d="${d}" data-i="${i}" data-k="${k}">
+  for (let i = first; i <= last; i++) {
+    const slot = getSlotData(d, i);
+    const l = slot.subject;
+    if (!l) { h += `<div class="win">Окно ${T[i][0]}–${T[i][1]}</div>`; continue; }
+
+    const k = noteKey(d, i);
+    const hasNote = !!notes[k];
+    const noteVal = notes[k] || '';
+
+    let tagHtml = '';
+    if (slot.canceled) {
+      tagHtml = `<span class="tag-cancel">Отменена</span>`;
+    } else if (slot.replaced) {
+      tagHtml = `<span class="tag-replace">Замена</span>`;
+    } else if (l.type) {
+      tagHtml = `<span class="tag">${l.type}</span>`;
+    }
+
+    const noteReason = slot.override?.note ? `<div style="font-size:.78rem;color:var(--s);margin-top:2px;">Причина: ${slot.override.note}</div>` : '';
+
+    h += `<article class="card v-${l.venue || 'r'}${hasNote ? ' has' : ''}${slot.canceled ? ' canceled' : ''}" data-d="${d}" data-i="${i}" data-k="${k}">
       <button class="card-h" aria-expanded="false">
         <div class="tm"><b>${T[i][0]}</b><i>${T[i][1]}</i></div>
         <div>
-          <div class="nm">${l.n}${l.t?`<span class="tag">${l.t}</span>`:''}<span class="dot" title="Есть заметка"></span></div>
-          <div class="pl">${l.w}</div>
-          <div class="th">${tshort(l.p)}</div>
+          <div class="nm">${l.name}${tagHtml}<span class="dot" title="Есть заметка"></span></div>
+          <div class="pl">${l.place || '—'}</div>
+          <div class="th">${tshort(l.teacher)}</div>
+          ${noteReason}
         </div>
         <span class="chev"></span>
       </button>
       <div class="more"><div><div class="mi">
-        <p>${full(l.w)}<small>${l.p||'Преподаватель не указан'} · ${i+1} пара (${T[i][0]}–${T[i][1]})</small></p>
+        <p>${full(l.place)}<small>${l.teacher || 'Преподаватель не указан'} · ${i+1} пара (${T[i][0]}–${T[i][1]})</small></p>
         <div class="note-box">
           <div class="note-head">
             <span class="note-title">📝 Заметка к паре</span>
-            <span class="note-state">${hasNote?'сохранено':'не заполнено'}</span>
+            <span class="note-state">${hasNote ? 'сохранено' : 'не заполнено'}</span>
           </div>
           <textarea data-k="${k}" placeholder="ДЗ, тема, дедлайн, что принести…" aria-label="Заметка к паре" autocorrect="on" autocapitalize="sentences">${noteVal}</textarea>
           <div class="note-footer">
             <span class="note-hint">Только у вас в браузере</span>
-            <button class="note-btn del" data-del="${k}" ${hasNote?'':'style="display:none"'}>Очистить</button>
+            <button class="note-btn del" data-del="${k}" ${hasNote ? '' : 'style="display:none"'}>Очистить</button>
           </div>
         </div>
       </div></div></div>
@@ -368,158 +478,220 @@ function dayView(d){
 }
 
 /* ---------- week view ---------- */
-function weekView(){
-  let h='<div class="wk"><span></span>'+DS.map((n,d)=>`<span class="h${d===today?' today':''}">${n}</span>`).join('');
-  for(let i=0;i<4;i++){
-    h+=`<span class="rl">${i+1}</span>`;
-    for(let d=0;d<6;d++){
-      const l=D[d][i];
-      const hasN=!!(notes[noteKey(d,i)]||(l&&notes[l.n]));
-      h+=l?`<button class="c v-${l.v}${hasN?' cur':''}" data-d="${d}" data-i="${i}" aria-label="${DN[d]}, ${i+1} пара: ${l.n}">${l.s}</button>`:`<span class="c e"></span>`;
+function weekView() {
+  let h = '<div class="wk"><span></span>' + DS.map((n, d) => `<span class="h${d === today ? ' today' : ''}">${n}</span>`).join('');
+  for (let i = 0; i < 4; i++) {
+    h += `<span class="rl">${i+1}</span>`;
+    for (let d = 0; d < 6; d++) {
+      const slot = getSlotData(d, i);
+      const l = slot.subject;
+      const hasN = !!notes[noteKey(d, i)];
+      if (l) {
+        const titleStr = slot.canceled ? `[Отменена] ${l.name}` : (slot.replaced ? `[Замена] ${l.name}` : l.name);
+        h += `<button class="c v-${l.venue || 'r'}${hasN ? ' cur' : ''}${slot.canceled ? ' canceled' : ''}" data-d="${d}" data-i="${i}" aria-label="${DN[d]}, ${i+1} пара: ${titleStr}">${l.short || l.name}</button>`;
+      } else {
+        h += `<span class="c e"></span>`;
+      }
     }
   }
-  return h+`</div><div class="leg"><span class="v-r"><i></i>аудитория</span><span class="v-g"><i></i>спортзал</span><span class="v-s"><i></i>стадион</span></div>`;
+  return h + `</div><div class="leg"><span class="v-r"><i></i>аудитория</span><span class="v-g"><i></i>спортзал</span><span class="v-s"><i></i>стадион</span></div>`;
 }
 
-function render(){
-  tabs();const v=$('#view');
-  v.className=dir?'in-'+dir:'';dir='';
-  v.innerHTML=sel==='w'?weekView():dayView(sel);
+function render() {
+  tabs();
+  const v = $('#view');
+  v.className = dir ? 'in-' + dir : '';
+  dir = '';
+  v.innerHTML = sel === 'w' ? weekView() : dayView(sel);
   tick();
 }
 
-$('#view').addEventListener('click',e=>{
-  const c=e.target.closest('.c[data-d]');
-  if(c){sel=+c.dataset.d;dir='r';render();return}
+$('#view').addEventListener('click', e => {
+  const c = e.target.closest('.c[data-d]');
+  if (c) { sel = +c.dataset.d; dir = 'r'; render(); return; }
 
-  const hd=e.target.closest('.card-h');
-  if(hd){
-    const card=hd.parentElement,o=card.classList.toggle('open');
-    hd.setAttribute('aria-expanded',o);
-    if(o){
-      const ta=card.querySelector('textarea');
-      if(ta)setTimeout(()=>ta.focus(),120);
+  const hd = e.target.closest('.card-h');
+  if (hd) {
+    const card = hd.parentElement, o = card.classList.toggle('open');
+    hd.setAttribute('aria-expanded', o);
+    if (o) {
+      const ta = card.querySelector('textarea');
+      if (ta) setTimeout(() => ta.focus(), 120);
     }
     return;
   }
 
-  const delBtn=e.target.closest('[data-del]');
-  if(delBtn){
-    const k=delBtn.dataset.del;
+  const delBtn = e.target.closest('[data-del]');
+  if (delBtn) {
+    const k = delBtn.dataset.del;
     delete notes[k];
     saveNotes();
-    const card=delBtn.closest('.card');
-    if(card){
+    const card = delBtn.closest('.card');
+    if (card) {
       card.classList.remove('has');
-      const ta=card.querySelector('textarea');
-      if(ta)ta.value='';
-      const st=card.querySelector('.note-state');
-      if(st)st.textContent='очищено';
-      delBtn.style.display='none';
+      const ta = card.querySelector('textarea');
+      if (ta) ta.value = '';
+      const st = card.querySelector('.note-state');
+      if (st) st.textContent = 'очищено';
+      delBtn.style.display = 'none';
     }
     toast('Заметка удалена');
     return;
   }
 
-  if(e.target.id==='cp'){
-    const txt=DN[sel]+':\n'+lessons(sel).map(l=>`${l.i+1}. ${T[l.i][0]} ${l.n}${l.t?' ('+l.t+')':''}, ${l.w}`).join('\n');
-    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject())
-      .then(()=>toast('Скопировано для чата'),()=>toast('Не удалось скопировать'));
+  if (e.target.id === 'cp') {
+    const txt = DN[sel] + ':\n' + lessons(sel).map(l => {
+      let mark = '';
+      if (l.canceled) mark = ' [ОТМЕНЕНА]';
+      else if (l.replaced) mark = ' [ЗАМЕНА]';
+      return `${l.i + 1}. ${T[l.i][0]} ${l.name}${mark}, ${l.place || ''}`;
+    }).join('\n');
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => toast('Скопировано для чата'), () => toast('Не удалось скопировать'));
   }
 });
 
-let noteTimer=null;
-$('#view').addEventListener('input',e=>{
-  const t=e.target;if(!t.dataset.k)return;
-  const k=t.dataset.k;
-  const card=t.closest('.card');
-  const val=t.value.trim();
-  const st=card?.querySelector('.note-state');
-  const delBtn=card?.querySelector('.note-btn.del');
+let noteTimer = null;
+$('#view').addEventListener('input', e => {
+  const t = e.target; if (!t.dataset.k) return;
+  const k = t.dataset.k;
+  const card = t.closest('.card');
+  const val = t.value.trim();
+  const st = card?.querySelector('.note-state');
+  const delBtn = card?.querySelector('.note-btn.del');
 
-  if(st)st.textContent='сохранение…';
+  if (st) st.textContent = 'сохранение…';
 
   clearTimeout(noteTimer);
-  noteTimer=setTimeout(()=>{
-    if(val){
-      notes[k]=val;
+  noteTimer = setTimeout(() => {
+    if (val) {
+      notes[k] = val;
       card?.classList.add('has');
-      if(delBtn)delBtn.style.display='inline-block';
-      if(st)st.textContent='сохранено';
-    }else{
+      if (delBtn) delBtn.style.display = 'inline-block';
+      if (st) st.textContent = 'сохранено';
+    } else {
       delete notes[k];
       card?.classList.remove('has');
-      if(delBtn)delBtn.style.display='none';
-      if(st)st.textContent='не заполнено';
+      if (delBtn) delBtn.style.display = 'none';
+      if (st) st.textContent = 'не заполнено';
     }
     saveNotes();
-  },300);
+  }, 300);
 });
 
 /* ---------- live state ---------- */
-function tick(){
+function tick() {
   hero();
-  const nm=nowM();
-  if(sel===today)document.querySelectorAll('.card').forEach(c=>{
-    const i=+c.dataset.i,s=M(T[i][0]),e=M(T[i][1]);
-    c.classList.toggle('now',nm>=s&&nm<e);c.classList.toggle('past',nm>=e);
-    const bar=c.querySelector('.bar i');
-    if(bar)bar.style.width=Math.max(0,Math.min(100,(nm-s)/90*100))+'%';
+  const nm = nowM();
+  if (sel === today) document.querySelectorAll('.card').forEach(c => {
+    const i = +c.dataset.i, s = M(T[i][0]), e = M(T[i][1]);
+    c.classList.toggle('now', nm >= s && nm < e);
+    c.classList.toggle('past', nm >= e);
+    const bar = c.querySelector('.bar i');
+    if (bar) bar.style.width = Math.max(0, Math.min(100, (nm - s) / 90 * 100)) + '%';
   });
-  document.querySelectorAll('.c.cur').forEach(c=>c.classList.remove('cur'));
-  if(sel==='w'&&today<6)T.forEach((t,i)=>{
-    if(nm>=M(t[0])&&nm<M(t[1]))document.querySelector(`.c[data-d="${today}"][data-i="${i}"]`)?.classList.add('cur');
+  document.querySelectorAll('.c.cur').forEach(c => c.classList.remove('cur'));
+  if (sel === 'w' && today < 6) T.forEach((t, i) => {
+    if (nm >= M(t[0]) && nm < M(t[1])) document.querySelector(`.c[data-d="${today}"][data-i="${i}"]`)?.classList.add('cur');
   });
 }
-setInterval(tick,30000);
+setInterval(tick, 30000);
 
 /* ---------- swipe + keys ---------- */
-let sx=null,sy=null;
-$('#view').addEventListener('touchstart',e=>{
-  if(e.target.closest('textarea'))return;
-  sx=e.touches[0].clientX;sy=e.touches[0].clientY;
-},{passive:true});
-$('#view').addEventListener('touchend',e=>{
-  if(sx===null||sel==='w')return;
-  const dx=e.changedTouches[0].clientX-sx;
-  const dy=e.changedTouches[0].clientY-sy;
-  sx=null;sy=null;
-  if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)*1.5){
-    go(dx<0?1:-1);
+let sx = null, sy = null;
+$('#view').addEventListener('touchstart', e => {
+  if (e.target.closest('textarea')) return;
+  sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+}, { passive: true });
+
+$('#view').addEventListener('touchend', e => {
+  if (sx === null || sel === 'w') return;
+  const dx = e.changedTouches[0].clientX - sx;
+  const dy = e.changedTouches[0].clientY - sy;
+  sx = null; sy = null;
+  if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+    go(dx < 0 ? 1 : -1);
   }
 });
-function go(s){
-  if(sel==='w')return;
-  const n=sel+s;
-  if(n<0||n>5)return;
-  dir=s>0?'r':'l';sel=n;render();
+
+function go(s) {
+  if (sel === 'w') return;
+  const n = sel + s;
+  if (n < 0 || n > 5) return;
+  dir = s > 0 ? 'r' : 'l'; sel = n; render();
 }
-document.addEventListener('keydown',e=>{
-  if(/TEXTAREA|INPUT/.test(e.target.tagName))return;
-  if(e.key==='ArrowRight')go(1);
-  if(e.key==='ArrowLeft')go(-1);
+
+document.addEventListener('keydown', e => {
+  if (/TEXTAREA|INPUT/.test(e.target.tagName)) return;
+  if (e.key === 'ArrowRight') go(1);
+  if (e.key === 'ArrowLeft') go(-1);
 });
 
 /* ---------- helpers ---------- */
-function toast(m){
-  const t=$('#toast');t.textContent=m;t.classList.add('on');
-  clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),1800);
+function toast(m) {
+  const t = $('#toast'); t.textContent = m; t.classList.add('on');
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 1800);
 }
-function burst(x,y){
-  if(matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  const cs=['#CF4A2C','#1F6B4E','#44505E','#E8B93A','#F3F5F1'];
-  for(let i=0;i<26;i++){
-    const p=document.createElement('i'),a=Math.random()*Math.PI*2,r=50+Math.random()*110;
-    p.style.cssText=`position:fixed;left:${x}px;top:${y}px;width:7px;height:${5+Math.random()*6}px;background:${cs[i%5]};border-radius:2px;pointer-events:none;z-index:99`;
+
+function burst(x, y) {
+  if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const cs = ['#CF4A2C', '#1F6B4E', '#44505E', '#FF8A6B', '#EDEFEC'];
+  for (let i = 0; i < 26; i++) {
+    const p = document.createElement('i'), a = Math.random() * Math.PI * 2, r = 50 + Math.random() * 110;
+    p.style.cssText = `position:fixed;left:${x}px;top:${y}px;width:7px;height:${5 + Math.random() * 6}px;background:${cs[i%5]};border-radius:2px;pointer-events:none;z-index:99`;
     document.body.appendChild(p);
     p.animate([
-      {transform:'translate(0,0) rotate(0)',opacity:1},
-      {transform:`translate(${Math.cos(a)*r}px,${Math.sin(a)*r+70}px) rotate(${Math.random()*540}deg)`,opacity:0}
-    ],{duration:850+Math.random()*450,easing:'cubic-bezier(.2,.7,.3,1)'}).onfinish=()=>p.remove();
+      { transform: 'translate(0,0) rotate(0)', opacity: 1 },
+      { transform: `translate(${Math.cos(a) * r}px, ${Math.sin(a) * r + 70}px) rotate(${Math.random() * 540}deg)`, opacity: 0 }
+    ], { duration: 850 + Math.random() * 450, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => p.remove();
   }
 }
 
-render();
+/* ---------- schedule loader ---------- */
+function applyScheduleData(data) {
+  if (!data) return;
+  if (Array.isArray(data.bells) && data.bells.length === 4) {
+    T = data.bells;
+  }
+  if (Array.isArray(data.subjects)) {
+    subjectsMap = {};
+    data.subjects.forEach(s => { subjectsMap[s.id] = s; });
+  }
+  if (Array.isArray(data.week) && data.week.length === 6) {
+    D = data.week.map(daySlots => daySlots.map(subId => subId ? subjectsMap[subId] || null : null));
+  }
+  if (Array.isArray(data.overrides)) {
+    overrides = data.overrides;
+  }
+  render();
+}
+
+async function loadSchedule() {
+  const offlineBadge = $('#offline-badge');
+  try {
+    const res = await fetch('/api/schedule');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    applyScheduleData(data);
+    localStorage.setItem('afk-schedule-cache', JSON.stringify(data));
+    offlineBadge.classList.remove('active');
+  } catch (err) {
+    console.warn('Network error fetching /api/schedule, trying cache:', err);
+    const cached = localStorage.getItem('afk-schedule-cache');
+    if (cached) {
+      try {
+        applyScheduleData(JSON.parse(cached));
+      } catch (e) {}
+      offlineBadge.classList.add('active');
+    } else {
+      // Fallback to built-in initial data
+      offlineBadge.classList.add('active');
+    }
+  }
+}
+
+// Initial render & fetch
+loadSchedule();
 </script>
 </body>
 </html>
