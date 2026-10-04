@@ -253,7 +253,42 @@ footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line
 
 <script>
 /* Default built-in fallback */
-let T = [['08:00','09:30'],['09:40','11:10'],['11:25','12:55'],['13:05','14:35']];
+const DEFAULT_SCHEDULE = {
+  version: 1,
+  bells: [
+    ['08:00', '09:30'],
+    ['09:40', '11:10'],
+    ['11:25', '12:55'],
+    ['13:05', '14:35']
+  ],
+  subjects: [
+    { id: 's_eng', name: 'Иностранный язык: английский', short: 'Англ. яз.', type: '', teacher: 'Шульга Светлана Ярославовна', place: 'к2 · 315', venue: 'r' },
+    { id: 's_afv_lk', name: 'Адаптивное ФВ дошкольников и школьников', short: 'АФВ дошк.', type: 'лк', teacher: 'Торопчина Людмила Генадьевна', place: 'к2 · 315', venue: 'r' },
+    { id: 's_afv_pr', name: 'Адаптивное ФВ дошкольников и школьников', short: 'АФВ дошк.', type: 'пр', teacher: 'Торопчина Людмила Генадьевна', place: 'к2 · 315', venue: 'r' },
+    { id: 's_fks_lk', name: 'Физическая культура и спорт', short: 'ФКиС', type: 'лк', teacher: 'Кольцов Денис Александрович', place: 'к2 · 315', venue: 'r' },
+    { id: 's_fks_pr', name: 'Физическая культура и спорт', short: 'ФКиС', type: 'пр', teacher: '—', place: 'Городской стадион', venue: 's' },
+    { id: 's_foot', name: 'Футбол и методика преподавания', short: 'Футбол', type: '', teacher: 'Мамков Олег Михайлович', place: 'Городской стадион', venue: 's' },
+    { id: 's_lang', name: 'Официальный язык: Молд. / Укр. яз.', short: 'Гос. язык', type: '', teacher: 'Мазепа Татьяна Андреевна / Якимович Елена', place: 'к2 · 204 / 205', venue: 'r' },
+    { id: 's_gym', name: 'Гимнастика и методика преподавания', short: 'Гимнастика', type: 'пр', teacher: 'Черниченко Игорь Павлович', place: 'к1 · спортзал', venue: 'g' },
+    { id: 's_bask', name: 'Баскетбол и методика преподавания', short: 'Баскетбол', type: 'пр', teacher: 'Чебан Татьяна Николаевна', place: 'к3 · спортзал', venue: 'g' },
+    { id: 's_org', name: 'Основы российской государственности', short: 'Осн. гос-ти', type: '', teacher: 'Осипова С. А.', place: 'к2 · 315', venue: 'r' },
+    { id: 's_vved', name: 'Введение в профессиональную деятельность', short: 'Введение в проф.', type: '', teacher: 'Граневский Владимир Викторович', place: 'к2 · 204', venue: 'r' },
+    { id: 's_toa', name: 'Теория и организация АФК', short: 'Теория АФК', type: '', teacher: 'Граневский Владимир Викторович', place: 'к2 · 204', venue: 'r' },
+    { id: 's_ir', name: 'История России', short: 'История России', type: '', teacher: 'Чащина Светлана Фёдоровна', place: 'к2 · 315', venue: 'r' },
+    { id: 's_ifk', name: 'История физической культуры', short: 'История ФК', type: '', teacher: 'Мыцыков Николай Владимирович', place: 'к2 · 204', venue: 'r' }
+  ],
+  week: [
+    [null, 's_eng', 's_afv_lk', 's_fks_lk'],
+    [null, 's_foot', 's_lang', null],
+    ['s_gym', 's_bask', 's_fks_pr', null],
+    ['s_org', 's_vved', 's_org', 's_toa'],
+    ['s_ir', 's_ir', 's_afv_pr', null],
+    ['s_ifk', 's_ifk', 's_eng', 's_toa']
+  ],
+  overrides: []
+};
+
+let T = DEFAULT_SCHEDULE.bells;
 let D = [
   [null, null, null, null],
   [null, null, null, null],
@@ -666,6 +701,18 @@ function applyScheduleData(data) {
   render();
 }
 
+// Instant initial render before network request
+const cachedSchedule = localStorage.getItem('afk-schedule-cache');
+if (cachedSchedule) {
+  try {
+    applyScheduleData(JSON.parse(cachedSchedule));
+  } catch (e) {
+    applyScheduleData(DEFAULT_SCHEDULE);
+  }
+} else {
+  applyScheduleData(DEFAULT_SCHEDULE);
+}
+
 async function loadSchedule() {
   const offlineBadge = $('#offline-badge');
   try {
@@ -676,21 +723,12 @@ async function loadSchedule() {
     localStorage.setItem('afk-schedule-cache', JSON.stringify(data));
     offlineBadge.classList.remove('active');
   } catch (err) {
-    console.warn('Network error fetching /api/schedule, trying cache:', err);
-    const cached = localStorage.getItem('afk-schedule-cache');
-    if (cached) {
-      try {
-        applyScheduleData(JSON.parse(cached));
-      } catch (e) {}
-      offlineBadge.classList.add('active');
-    } else {
-      // Fallback to built-in initial data
-      offlineBadge.classList.add('active');
-    }
+    console.warn('Network error fetching /api/schedule, using cached schedule:', err);
+    offlineBadge.classList.add('active');
   }
 }
 
-// Initial render & fetch
+// Background sync
 loadSchedule();
 </script>
 </body>
