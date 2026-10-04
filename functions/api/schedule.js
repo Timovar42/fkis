@@ -23,11 +23,26 @@ export async function onRequestGet(context) {
     }
 
     return jsonResponse(schedule, 200, {
-      'Cache-Control': 'public, max-age=60, s-maxage=60'
+      'Cache-Control': 'public, max-age=60, s-maxage=60',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
     });
   } catch (err) {
     return jsonResponse(INITIAL_SCHEDULE, 200, {
-      'Cache-Control': 'public, max-age=60'
+      'Cache-Control': 'public, max-age=60',
+      'Access-Control-Allow-Origin': '*'
     });
   }
+}
+
+export async function onRequestOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    }
+  });
 }

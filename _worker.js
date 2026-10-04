@@ -20,6 +20,17 @@ export default {
     });
 
     try {
+      if (method === 'OPTIONS') {
+        return new Response(null, {
+          status: 204,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Cookie'
+          }
+        });
+      }
+
       // API routing
       if (path === '/api/schedule' && method === 'GET') {
         return await handleGetSchedule(makeContext());

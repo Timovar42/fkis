@@ -713,10 +713,15 @@ if (cachedSchedule) {
   applyScheduleData(DEFAULT_SCHEDULE);
 }
 
+// Automatic API host detection (works on both Cloudflare and GitHub Pages)
+const API_BASE = location.origin.includes('github.io')
+  ? 'https://fkis.a77831818.workers.dev'
+  : '';
+
 async function loadSchedule() {
   const offlineBadge = $('#offline-badge');
   try {
-    const res = await fetch('/api/schedule');
+    const res = await fetch(`${API_BASE}/api/schedule`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     applyScheduleData(data);
