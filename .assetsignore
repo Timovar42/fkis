@@ -1,0 +1,6 @@
+_worker.js
+functions/
+scripts/
+wrangler.json
+README.md
+.git/
