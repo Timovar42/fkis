@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGradAdmin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1A2420"/>
+      <stop offset="100%" stop-color="#121714"/>
+    </linearGradient>
+  </defs>
+  <!-- Dark Squircle Background -->
+  <rect width="512" height="512" rx="116" fill="url(#bgGradAdmin)"/>
+
+  <!-- Calendar Container -->
+  <g transform="translate(106, 96)">
+    <!-- Header of calendar -->
+    <path d="M 30 50 L 270 50 A 20 20 0 0 1 290 70 L 290 100 L 10 100 L 10 70 A 20 20 0 0 1 30 50 Z" fill="#1F6B4E"/>
+    <!-- Binder rings -->
+    <rect x="60" y="24" width="22" height="42" rx="11" fill="#FF8A6B"/>
+    <rect x="218" y="24" width="22" height="42" rx="11" fill="#FF8A6B"/>
+
+    <!-- Calendar Body -->
+    <rect x="10" y="100" width="280" height="210" rx="16" fill="#FAFAF8" stroke="#1F6B4E" stroke-width="12"/>
+
+    <!-- Calendar Cells -->
+    <g transform="translate(36, 126)">
+      <rect x="0" y="0" width="56" height="40" rx="8" fill="#5CC49A"/>
+      <rect x="66" y="0" width="56" height="40" rx="8" fill="#FF8A6B"/>
+      <rect x="132" y="0" width="56" height="40" rx="8" fill="#9BB0C6"/>
+
+      <rect x="0" y="50" width="56" height="40" rx="8" fill="#FF8A6B"/>
+      <rect x="66" y="50" width="56" height="40" rx="8" fill="#5CC49A"/>
+      <rect x="132" y="50" width="56" height="40" rx="8" fill="#FF8A6B"/>
+
+      <rect x="0" y="100" width="56" height="40" rx="8" fill="#5CC49A"/>
+      <rect x="66" y="100" width="56" height="40" rx="8" fill="#FF8A6B"/>
+    </g>
+
+    <!-- Settings Gear -->
+    <g transform="translate(230, 240)" fill="#FF8A6B">
+      <circle cx="28" cy="28" r="34" opacity="0.95"/>
+      <circle cx="28" cy="28" r="14" fill="#121714"/>
+    </g>
+
+    <!-- Editing Pencil Tool -->
+    <g transform="translate(195, 140) rotate(45)">
+      <rect x="0" y="0" width="34" height="150" rx="8" fill="#1F6B4E"/>
+      <rect x="0" y="0" width="34" height="30" rx="6" fill="#FF8A6B"/>
+      <polygon points="0,150 34,150 17,185" fill="#5CC49A"/>
+      <polygon points="12,175 22,175 17,185" fill="#121714"/>
+    </g>
+  </g>
+</svg>
