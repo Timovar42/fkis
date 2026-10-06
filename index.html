@@ -80,7 +80,27 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   -webkit-tap-highlight-color:transparent;
 }
 .hero:active{transform:scale(.99)}
+.hero-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hero-hw-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:rgb(255 255 255 / .12);color:var(--hero-fg);
+  border:1px solid rgb(255 255 255 / .18);border-radius:8px;
+  padding:4px 9px 4px 6px;font-size:.76rem;font-weight:600;
+  cursor:pointer;transition:all .15s ease;-webkit-tap-highlight-color:transparent;
+}
+.hero-hw-btn:active{background:rgb(255 255 255 / .24);transform:scale(.97)}
+.hero-hw-btn.active{background:var(--hero-acc);color:var(--hero);border-color:var(--hero-acc);font-weight:700}
+.hero-hw-tag{
+  background:var(--s);color:#fff;
+  font-weight:700;font-size:.66rem;padding:1px 5px;border-radius:4px;line-height:1.1;
+}
+.hero-hw-btn.active .hero-hw-tag{background:var(--hero);color:var(--hero-acc)}
+.hero-hw-text{font-size:.76rem;font-weight:600;line-height:1}
 .hero .lbl{font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.75}
+.hero[data-st=live] .lbl::before{
+  content:'';display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--hero-acc);margin-right:6px;vertical-align:0px;animation:blink 1.5s infinite;
+}
 .hero .row{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;margin-top:6px}
 .h-nm{font-weight:600;font-size:1.15rem;line-height:1.25}
 .h-pl{margin-top:4px;color:var(--hero-acc);font-weight:600;font-size:.95rem}
@@ -90,25 +110,21 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
 .pr{height:4px;border-radius:2px;background:rgb(255 255 255/.16);margin-top:14px;overflow:hidden}
 .pr i{display:block;height:100%;background:var(--hero-acc);border-radius:2px;transition:width .6s ease}
 .then{margin-top:12px;font-size:.82rem;opacity:.8}
-.hero[data-st=live]::after{
-  content:'';position:absolute;top:16px;right:18px;width:9px;height:9px;border-radius:50%;
-  background:var(--hero-acc);animation:blink 1.5s infinite;
-}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
 /* tabs */
 .tabs{
-  display:grid;grid-template-columns:repeat(6,1fr) 1.05fr 1.05fr;gap:3px;
-  margin:14px 0 14px;padding:4px 3px;border-radius:14px;
+  display:grid;grid-template-columns:repeat(6,1fr) 1.15fr;gap:4px;
+  margin:14px 0 14px;padding:4px;border-radius:14px;
   background:color-mix(in srgb,var(--ink) 7%,transparent);
 }
 .tab{
-  border-radius:10px;padding:6px 1px 6px;font-weight:600;color:var(--mute);
+  border-radius:10px;padding:7px 1px 7px;font-weight:600;color:var(--mute);
   display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;
   transition:all .15s ease;-webkit-tap-highlight-color:transparent;min-width:0;
 }
-.tab-dn{font-size:.85rem;line-height:1}
-.tab-num{font-size:.68rem;font-weight:500;color:var(--mute);font-variant-numeric:tabular-nums;line-height:1}
+.tab-dn{font-size:.88rem;line-height:1}
+.tab-num{font-size:.72rem;font-weight:500;color:var(--mute);font-variant-numeric:tabular-nums;line-height:1}
 .tab[aria-selected=true]{
   background:var(--paper);color:var(--ink);
   box-shadow:0 1px 4px rgba(0,0,0,.15);
@@ -117,14 +133,10 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
 .tab.today::after{
   content:'';position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--s);
 }
-.tab-badge{
-  font-size:.62rem;font-weight:700;padding:1px 4px;border-radius:6px;
-  background:var(--hero-acc);color:var(--hero);line-height:1;margin-top:1px;
-}
-.ticks{display:flex;gap:2px;margin-top:1px}
+.ticks{display:flex;gap:2px;margin-top:2px}
 .ticks i{width:4px;height:10px;border-radius:2px;background:var(--line);transition:background .2s}
 .ticks i.on{background:var(--v)}
-.tab svg{width:15px;height:15px;margin:1px 0}
+.tab svg{width:16px;height:16px;margin:1px 0}
 .v-r{--v:var(--r)}.v-g{--v:var(--g)}.v-s{--v:var(--s)}
 
 /* day */
@@ -173,18 +185,12 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;
 }
 .tag-hw{
-  background:color-mix(in srgb,var(--hero-acc) 18%,var(--paper));color:var(--hero-acc);
-  border:1px solid color-mix(in srgb,var(--hero-acc) 40%,transparent);
-  font-size:.66rem;font-weight:700;padding:1px 5px;border-radius:4px;flex-shrink:0;
+  background:var(--s);color:#fff;
+  font-size:.68rem;font-weight:700;padding:1px 5px;border-radius:4px;
+  margin-left:6px;vertical-align:1px;display:inline-block;line-height:1.2;
 }
-.card-hw-preview{
-  display:flex;align-items:center;gap:6px;margin-top:5px;
-  background:color-mix(in srgb,var(--hero-acc) 10%,var(--paper));
-  padding:3px 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--hero-acc) 25%,transparent);
-}
-.card-hw-text{
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  font-size:.78rem;color:var(--ink);
+.tag-hw.tag-hw-done{
+  background:color-mix(in srgb,var(--s) 28%,var(--paper));color:var(--mute);opacity:.75;
 }
 .hw-done-text{text-decoration:line-through;opacity:.6}
 
@@ -654,12 +660,36 @@ function hero() {
     lbl = Ls.length ? 'На сегодня всё' : 'Сегодня пар нет';
     main = `<div><div class="h-nm">${Ls.length ? 'Можно выдыхать 🎉' : 'Выходной'}</div>${n ? `<div class="then" style="margin-top:6px">${n.k == 1 ? 'Завтра' : ACC[n.d][0].toUpperCase() + ACC[n.d].slice(1)} в ${T[n.l.i][0]}: ${n.l.short || n.l.name}, ${n.l.place || ''}</div>` : ''}</div>`;
   }
+
+  const pendingHwCount = homework.filter(h => !hwDone[h.id]).length;
+  const isHwActive = (sel === 'hw');
+  const hwBtnHtml = `<button class="hero-hw-btn${isHwActive ? ' active' : ''}" id="hero-hw-btn" type="button" aria-label="Домашние задания">
+    <span class="hero-hw-tag">ДЗ</span>
+    <span class="hero-hw-text">${pendingHwCount > 0 ? pendingHwCount : 'все'}</span>
+  </button>`;
+
   const h = $('#hero');
   h.dataset.st = heroState;
-  h.innerHTML = `<div class="lbl">${lbl}</div><div class="row">${main}<div class="cd">${cd}</div></div>${pr}${then ? `<div class="then">${then}</div>` : ''}`;
+  h.innerHTML = `<div class="hero-top"><div class="lbl">${lbl}</div>${hwBtnHtml}</div><div class="row">${main}<div class="cd">${cd}</div></div>${pr}${then ? `<div class="then">${then}</div>` : ''}`;
 }
 
 $('#hero').onclick = e => {
+  const hwBtn = e.target.closest('#hero-hw-btn');
+  if (hwBtn) {
+    e.stopPropagation();
+    if (sel === 'hw') {
+      const todayDow = getTodayDow();
+      selectedWeekIndex = 1;
+      sel = todayDow < 6 ? todayDow : 0;
+      dir = 'l';
+    } else {
+      sel = 'hw';
+      dir = 'r';
+    }
+    render();
+    return;
+  }
+
   if (heroState === 'done') return burst(e.clientX, e.clientY);
   // Tap returns user to current week and current day
   const todayDow = getTodayDow();
@@ -718,9 +748,6 @@ function tabs() {
   const isCurWeek = (selectedWeekIndex === 1);
   const wkSvg = '<svg viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="1" width="7" height="7" rx="2"/><rect x="10" y="1" width="7" height="7" rx="2"/><rect x="1" y="10" width="7" height="7" rx="2"/><rect x="10" y="10" width="7" height="7" rx="2"/></svg>';
 
-  // Pending HW count
-  const pendingHwCount = homework.filter(h => !hwDone[h.id]).length;
-
   let html = DS.map((n, d) => {
     const dateStr = addDays(activeMon, d);
     const dayNum = parseInt(dateStr.split('-')[2], 10);
@@ -737,13 +764,7 @@ function tabs() {
 
   // Tab: Сетка (вся неделя)
   html += `<button class="tab" role="tab" data-d="w" aria-selected="${sel === 'w'}" aria-label="Вся неделя">
-    ${wkSvg}<span style="font-size:.68rem;font-weight:600;line-height:1">сетка</span>
-  </button>`;
-
-  // Tab: ДЗ (список заданий)
-  html += `<button class="tab" role="tab" data-d="hw" aria-selected="${sel === 'hw'}" aria-label="Домашние задания">
-    <span style="font-size:.85rem;font-weight:700;line-height:1">ДЗ</span>
-    ${pendingHwCount > 0 ? `<span class="tab-badge">${pendingHwCount}</span>` : `<span style="font-size:.66rem;font-weight:500;color:var(--mute);line-height:1">все</span>`}
+    ${wkSvg}<span style="font-size:.7rem;font-weight:600;line-height:1">сетка</span>
   </button>`;
 
   $('#tabs').innerHTML = html;
@@ -752,9 +773,9 @@ function tabs() {
 $('#tabs').onclick = e => {
   const b = e.target.closest('.tab'); if (!b) return;
   const dVal = b.dataset.d;
-  const d = (dVal === 'w' || dVal === 'hw') ? dVal : +dVal;
+  const d = dVal === 'w' ? 'w' : +dVal;
   if (d === sel) return;
-  dir = 'r';
+  dir = d === 'w' || (sel !== 'w' && d > sel) ? 'r' : 'l';
   sel = d;
   render();
 };
@@ -825,14 +846,10 @@ function dayView(d) {
 
     const noteReason = slot.override?.note ? `<div style="font-size:.78rem;color:var(--s);margin-top:2px;">Причина: ${escapeHtml(slot.override.note)}</div>` : '';
 
-    // Collapsed HW preview
-    let hwPreviewHtml = '';
+    // Collapsed HW badge: only red square/badge "ДЗ"
+    let hwBadgeHtml = '';
     if (slotHw) {
-      const firstLine = slotHw.text.split('\n')[0].slice(0, 70);
-      hwPreviewHtml = `<div class="card-hw-preview">
-        <span class="tag-hw">ДЗ</span>
-        <span class="card-hw-text ${isHwDone ? 'hw-done-text' : ''}">${escapeHtml(firstLine)}</span>
-      </div>`;
+      hwBadgeHtml = `<span class="tag-hw${isHwDone ? ' tag-hw-done' : ''}" title="Есть домашнее задание">ДЗ</span>`;
     }
 
     // Expanded HW box
@@ -868,11 +885,10 @@ function dayView(d) {
       <button class="card-h" aria-expanded="false">
         <div class="tm"><b>${T[i][0]}</b><i>${T[i][1]}</i></div>
         <div>
-          <div class="nm">${l.name}${tagHtml}<span class="dot" title="Есть заметка"></span></div>
+          <div class="nm">${l.name}${tagHtml}${hwBadgeHtml}<span class="dot" title="Есть заметка"></span></div>
           <div class="pl">${l.place || '—'}</div>
           <div class="th">${tshort(l.teacher)}</div>
           ${noteReason}
-          ${hwPreviewHtml}
         </div>
         <span class="chev"></span>
       </button>
@@ -1126,13 +1142,22 @@ $('#view').addEventListener('change', e => {
   const viewItem = document.querySelector(`.hw-view-item[data-hwid="${hwId}"]`);
   if (viewItem) viewItem.classList.toggle('is-done', !!hwDone[hwId]);
 
-  // Update badge on HW tab
+  // Update hero HW button text
   const pendingHwCount = homework.filter(h => !hwDone[h.id]).length;
-  const badge = document.querySelector('.tab-badge');
-  if (badge) {
-    badge.textContent = pendingHwCount;
-    if (pendingHwCount === 0) badge.style.display = 'none';
-  }
+  const heroHwText = document.querySelector('.hero-hw-text');
+  if (heroHwText) heroHwText.textContent = pendingHwCount > 0 ? pendingHwCount : 'все';
+
+  // Update card tag-hw styling
+  document.querySelectorAll('.card[data-i]').forEach(card => {
+    const i = +card.dataset.i;
+    const d = +card.dataset.d;
+    const dateStr = addDays(getActiveMonday(), d);
+    const hItem = homework.find(h => h.date === dateStr && h.slot === i);
+    if (hItem) {
+      const badge = card.querySelector('.tag-hw');
+      if (badge) badge.classList.toggle('tag-hw-done', !!hwDone[hItem.id]);
+    }
+  });
 });
 
 /* Note editing */
