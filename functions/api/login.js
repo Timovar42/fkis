@@ -10,21 +10,14 @@ import {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  // Generic error response for security (same message on all authentication failures)
-  const genericAuthError = () => errorResponse('Неверный пароль или доступ заблокирован.', 401);
-  const rateLimitError = () => errorResponse('Слишком много попыток, попробуй через 15 минут.', 429);
+  const genericAuthError = () => errorResponse('Неверный пароль.', 401);
 
   const ip = getClientIp(request);
   const rateKey = `rate:login:${ip}`;
 
-  // Check rate limit in KV
-  let attempts = 0;
+  // Reset any existing lockout in KV
   if (env.SCHEDULE_KV) {
-    const attemptsStr = await env.SCHEDULE_KV.get(rateKey);
-    attempts = attemptsStr ? parseInt(attemptsStr, 10) : 0;
-    if (attempts >= 5) {
-      return rateLimitError();
-    }
+    try { await env.SCHEDULE_KV.delete(rateKey); } catch (e) {}
   }
 
   let body;
@@ -49,21 +42,7 @@ export async function onRequestPost(context) {
   const isMatch = await verifyPassword(password, expectedHash);
 
   if (!isMatch) {
-    // Increment failed attempts
-    if (env.SCHEDULE_KV) {
-      const newAttempts = attempts + 1;
-      // 900 seconds = 15 minutes TTL
-      await env.SCHEDULE_KV.put(rateKey, String(newAttempts), { expirationTtl: 900 });
-      if (newAttempts >= 5) {
-        return rateLimitError();
-      }
-    }
     return genericAuthError();
-  }
-
-  // Login successful: reset rate limit counter
-  if (env.SCHEDULE_KV && attempts > 0) {
-    await env.SCHEDULE_KV.delete(rateKey);
   }
 
   // 14 days expiration
