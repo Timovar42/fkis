@@ -71,6 +71,7 @@ button{cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:tr
 }
 @media(prefers-color-scheme:dark){.btn-primary{color:#121714;font-weight:700}}
 .btn-primary:active{background:var(--accent-hover)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
 .login-err{
   margin-top:14px;padding:10px 12px;border-radius:8px;font-size:.82rem;line-height:1.35;
   background:color-mix(in srgb,var(--danger) 12%,var(--paper));
@@ -101,17 +102,40 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 
 /* Main Navigation Tabs */
 .nav-tabs{
-  display:grid;grid-template-columns:repeat(5,1fr);gap:4px;
+  display:grid;grid-template-columns:repeat(6,1fr);gap:4px;
   margin-bottom:16px;padding:4px;border-radius:14px;
   background:color-mix(in srgb,var(--ink) 7%,transparent);
 }
 .nav-tab{
-  padding:8px 2px;border-radius:10px;font-size:.8rem;font-weight:600;
+  padding:8px 2px;border-radius:10px;font-size:.76rem;font-weight:600;
   color:var(--mute);display:flex;flex-direction:column;align-items:center;gap:4px;
   text-align:center;transition:all .15s;
 }
 .nav-tab[aria-selected="true"]{
   background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12);
+}
+
+/* Week Switcher */
+.week-switcher{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  background:var(--paper);border:1px solid var(--line);border-radius:12px;
+  padding:6px 12px;margin-bottom:12px;
+}
+.week-nav-btn{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--line);
+  background:var(--bg);color:var(--ink);font-size:1.3rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+}
+.week-nav-btn:disabled{opacity:.3;cursor:not-allowed}
+.week-title-wrap{text-align:center}
+.week-title{font-weight:700;font-size:.92rem;display:block}
+.week-range{font-size:.76rem;color:var(--mute)}
+
+.read-only-banner{
+  background:color-mix(in srgb,var(--warning) 10%,var(--paper));
+  border:1px solid color-mix(in srgb,var(--warning) 30%,transparent);
+  border-radius:8px;padding:8px 12px;font-size:.78rem;color:var(--warning);
+  margin-bottom:12px;display:flex;align-items:center;gap:6px;
 }
 
 /* Day switchers */
@@ -122,11 +146,12 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 }
 .day-tab{
   padding:7px 0;border-radius:8px;font-weight:600;font-size:.88rem;color:var(--mute);
-  display:flex;flex-direction:column;align-items:center;gap:4px;
+  display:flex;flex-direction:column;align-items:center;gap:2px;
 }
 .day-tab[aria-selected="true"]{
   background:var(--paper);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);
 }
+.day-tab-num{font-size:.68rem;opacity:.75}
 
 /* Schedule cards */
 .day-heading{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
@@ -140,6 +165,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
   transition:all .2s ease;
   user-select:none;
 }
+.slot-block.read-only{cursor:default}
 .slot-block.dragging{opacity:.4;border-style:dashed}
 .slot-block.drag-over{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
 .slot-block.empty{
@@ -159,8 +185,19 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 .slot-main{margin-top:6px}
 .slot-name{font-weight:600;font-size:1rem;line-height:1.25}
 .slot-tag{font-size:.68rem;font-weight:600;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-left:5px;vertical-align:1px}
+.slot-tag-hw{
+  background:color-mix(in srgb,var(--hero-acc) 18%,var(--paper));
+  color:var(--hero-acc);border:1px solid color-mix(in srgb,var(--hero-acc) 40%,transparent);
+  font-size:.68rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;
+}
 .slot-place{font-size:.85rem;font-weight:600;color:var(--v);margin-top:2px}
 .slot-teacher{font-size:.8rem;color:var(--mute);margin-top:1px}
+.slot-hw-preview{
+  margin-top:6px;padding:5px 8px;border-radius:6px;
+  background:color-mix(in srgb,var(--ink) 3%,var(--bg));
+  font-size:.78rem;color:var(--ink);border:1px solid var(--line);
+  display:flex;align-items:center;gap:6px;
+}
 
 /* Week grid view */
 .wk-grid{display:grid;grid-template-columns:26px repeat(6,1fr);gap:4px;margin-top:8px}
@@ -170,9 +207,12 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
   min-height:74px;border:0;border-left:3px solid var(--v);border-radius:6px;
   background:color-mix(in srgb,var(--v) 15%,var(--paper));
   font:600 .7rem/1.2 var(--font);text-align:left;padding:6px 4px;
-  cursor:pointer;overflow:hidden;word-break:break-word;hyphens:auto;
+  cursor:pointer;overflow:hidden;word-break:break-word;hyphens:auto;position:relative;
 }
 .wk-c.empty{background:var(--paper);border:1px dashed var(--line);color:var(--mute);cursor:pointer;opacity:.7}
+.wk-c.has-hw::after{
+  content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--hero-acc);
+}
 
 /* Subjects tab */
 .subjs-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
@@ -189,6 +229,39 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 .subj-info h3{font-size:.95rem;font-weight:600}
 .subj-meta{font-size:.8rem;color:var(--mute);margin-top:2px}
 .subj-actions{display:flex;gap:6px}
+.btn-subj-hw{
+  height:30px;padding:0 10px;border-radius:6px;border:1px solid var(--line);
+  background:var(--bg);color:var(--ink);font-size:.76rem;font-weight:600;
+  display:inline-flex;align-items:center;gap:4px;
+}
+
+/* Homework tab */
+.hw-list{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.hw-card{
+  background:var(--paper);border:1px solid var(--line);border-radius:10px;
+  padding:12px;position:relative;
+}
+.hw-card.orphaned{
+  border-color:var(--warning);
+  background:color-mix(in srgb,var(--warning) 6%,var(--paper));
+}
+.hw-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.hw-date{font:700 1.25rem/1 var(--disp);color:var(--ink)}
+.hw-slot-badge{font-size:.72rem;color:var(--mute)}
+.hw-badge-orphan{
+  background:color-mix(in srgb,var(--warning) 18%,var(--paper));
+  color:var(--warning);border:1px solid color-mix(in srgb,var(--warning) 40%,transparent);
+  font-size:.68rem;font-weight:700;padding:2px 6px;border-radius:4px;margin-top:4px;display:inline-block;
+}
+.hw-body{margin-top:8px;font-size:.88rem;line-height:1.4}
+.hw-meta-row{margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.78rem;color:var(--mute)}
+.hw-due-tag{font-weight:600;color:var(--hero-acc)}
+.hw-link-btn{color:var(--accent);text-decoration:underline}
+.hw-actions{margin-top:10px;display:flex;gap:6px;justify-content:flex-end}
+.btn-hw-act{
+  height:32px;padding:0 10px;border-radius:6px;border:1px solid var(--line);
+  background:var(--bg);font-size:.76rem;font-weight:600;
+}
 
 /* Overrides tab */
 .overrides-list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
@@ -267,7 +340,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
   position:fixed;left:0;right:0;bottom:0;z-index:101;
   background:var(--paper);border-top:1px solid var(--line);
   border-radius:20px 20px 0 0;padding:16px 16px max(20px,env(safe-area-inset-bottom));
-  max-width:640px;margin:0 auto;max-height:85vh;overflow-y:auto;
+  max-width:640px;margin:0 auto;max-height:88vh;overflow-y:auto;
   transform:translateY(100%);transition:transform .24s cubic-bezier(.2,.8,.3,1);
 }
 .sheet.active{transform:translateY(0)}
@@ -281,7 +354,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
   width:100%;height:40px;border:1px solid var(--line);border-radius:8px;
   background:var(--bg);padding:0 10px;font-size:16px;margin-bottom:10px;
 }
-.subjs-picker-list{display:flex;flex-direction:column;gap:6px;max-height:48vh;overflow-y:auto;margin-bottom:12px}
+.subjs-picker-list{display:flex;flex-direction:column;gap:6px;max-height:30vh;overflow-y:auto;margin-bottom:12px}
 .picker-item{
   background:var(--bg);border:1px solid var(--line);border-radius:8px;
   padding:10px 12px;text-align:left;border-left:4px solid var(--v);
@@ -289,6 +362,12 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 .picker-item:active{background:color-mix(in srgb,var(--ink) 8%,var(--paper))}
 .picker-item h4{font-size:.9rem;font-weight:600}
 .picker-item p{font-size:.78rem;color:var(--mute);margin-top:2px}
+
+/* Homework section inside slot picker */
+.hw-slot-box{
+  margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);
+}
+.hw-slot-title{font-size:.78rem;font-weight:700;text-transform:uppercase;color:var(--mute);letter-spacing:.05em;margin-bottom:8px}
 
 /* Preview Modal */
 .preview-modal{
@@ -377,6 +456,10 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
       <svg class="icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span>Предметы</span>
     </button>
+    <button class="nav-tab" data-tab="homework" aria-selected="false">
+      <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>ДЗ</span>
+    </button>
     <button class="nav-tab" data-tab="overrides" aria-selected="false">
       <svg class="icon" viewBox="0 0 24 24"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
       <span>Замены</span>
@@ -393,14 +476,29 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 
   <!-- TAB: SCHEDULE -->
   <section id="tab-content-schedule">
+    <!-- Week Switcher -->
+    <div class="week-switcher">
+      <button class="week-nav-btn" id="btn-prev-week" aria-label="Предыдущая неделя">‹</button>
+      <div class="week-title-wrap">
+        <span class="week-title" id="week-title-text">Эта неделя</span>
+        <span class="week-range" id="week-range-text">...</span>
+      </div>
+      <button class="week-nav-btn" id="btn-next-week" aria-label="Следующая неделя">›</button>
+    </div>
+
+    <div id="read-only-banner" class="read-only-banner hidden">
+      <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span>Прошлая неделя открыта только для просмотра (история не переписывается)</span>
+    </div>
+
     <div class="day-tabs" id="day-tabs">
-      <button class="day-tab" data-day="0" aria-selected="true">Пн</button>
-      <button class="day-tab" data-day="1" aria-selected="false">Вт</button>
-      <button class="day-tab" data-day="2" aria-selected="false">Ср</button>
-      <button class="day-tab" data-day="3" aria-selected="false">Чт</button>
-      <button class="day-tab" data-day="4" aria-selected="false">Пт</button>
-      <button class="day-tab" data-day="5" aria-selected="false">Сб</button>
-      <button class="day-tab" data-day="w" aria-selected="false">Сетка</button>
+      <button class="day-tab" data-day="0" aria-selected="true"><span>Пн</span><span class="day-tab-num" id="dnum-0"></span></button>
+      <button class="day-tab" data-day="1" aria-selected="false"><span>Вт</span><span class="day-tab-num" id="dnum-1"></span></button>
+      <button class="day-tab" data-day="2" aria-selected="false"><span>Ср</span><span class="day-tab-num" id="dnum-2"></span></button>
+      <button class="day-tab" data-day="3" aria-selected="false"><span>Чт</span><span class="day-tab-num" id="dnum-3"></span></button>
+      <button class="day-tab" data-day="4" aria-selected="false"><span>Пт</span><span class="day-tab-num" id="dnum-4"></span></button>
+      <button class="day-tab" data-day="5" aria-selected="false"><span>Сб</span><span class="day-tab-num" id="dnum-5"></span></button>
+      <button class="day-tab" data-day="w" aria-selected="false"><span>Сетка</span></button>
     </div>
 
     <!-- Day single view -->
@@ -428,6 +526,17 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
       </button>
     </div>
     <div class="subjs-list" id="subjects-list-container"></div>
+  </section>
+
+  <!-- TAB: HOMEWORK (NEW) -->
+  <section id="tab-content-homework" class="hidden">
+    <div class="subjs-toolbar">
+      <h2 style="font:700 1.4rem/1 var(--disp);text-transform:uppercase;">Домашние задания</h2>
+    </div>
+    <p style="font-size:.82rem;color:var(--mute);margin-bottom:8px;">
+      Задания публикуются для всех студентов. Вы можете привязать ДЗ к любой паре текущей или следующей недели.
+    </p>
+    <div class="hw-list" id="homework-list-container"></div>
   </section>
 
   <!-- TAB: OVERRIDES -->
@@ -486,7 +595,7 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
   </div>
 </div>
 
-<!-- ================= BOTTOM SHEET: SUBJECT PICKER ================= -->
+<!-- ================= BOTTOM SHEET: SLOT EDIT & HOMEWORK ================= -->
 <div class="sheet-backdrop" id="sheet-picker-backdrop"></div>
 <div class="sheet" id="sheet-picker">
   <div class="sheet-grabber"></div>
@@ -494,11 +603,45 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
     <h3 class="sheet-title" id="sheet-picker-title">Пара</h3>
     <button class="sheet-close" id="btn-close-picker">Закрыть</button>
   </div>
-  <input type="search" id="picker-search" class="search-input" placeholder="Поиск предмета...">
-  <div class="subjs-picker-list" id="picker-list"></div>
-  <div style="display:flex;gap:8px;margin-top:8px;">
-    <button class="btn-primary" id="btn-picker-create-new" style="flex:1;">+ Создать новый</button>
-    <button class="btn-primary" id="btn-picker-clear-slot" style="flex:1;background:var(--danger);color:#fff;">Убрать пару</button>
+
+  <div id="picker-slot-edit-section">
+    <label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:.82rem;color:var(--mute);" id="label-apply-future">
+      <input type="checkbox" id="chk-apply-future" checked>
+      <span>Применить и к следующим неделям</span>
+    </label>
+
+    <input type="search" id="picker-search" class="search-input" placeholder="Поиск предмета...">
+    <div class="subjs-picker-list" id="picker-list"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;">
+      <button class="btn-primary" id="btn-picker-create-new" style="flex:1;height:38px;font-size:.85rem;">+ Новый предмет</button>
+      <button class="btn-primary" id="btn-picker-clear-slot" style="flex:1;height:38px;font-size:.85rem;background:var(--danger);color:#fff;">Убрать пару</button>
+    </div>
+  </div>
+
+  <!-- HOMEWORK SECTION FOR THIS SLOT -->
+  <div class="hw-slot-box" id="hw-slot-box">
+    <div class="hw-slot-title">📝 Домашнее задание к этой паре</div>
+    <div class="form-group" style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <label for="hw-slot-text" style="margin-bottom:0;">Текст задания</label>
+        <span id="hw-slot-char-count" style="font-size:.74rem;color:var(--mute);">0 / 600</span>
+      </div>
+      <textarea id="hw-slot-text" class="input-text" style="height:76px;padding:8px 10px;resize:vertical;" placeholder="Прочитать §4, подготовить конспект..." maxlength="600"></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div>
+        <label for="hw-slot-due" style="font-size:.74rem;">Сдать до (опционально)</label>
+        <input type="date" id="hw-slot-due" class="input-text" style="height:38px;">
+      </div>
+      <div>
+        <label for="hw-slot-link" style="font-size:.74rem;">Ссылка на материалы</label>
+        <input type="url" id="hw-slot-link" class="input-text" style="height:38px;" placeholder="https://...">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button type="button" class="btn-primary" id="btn-save-slot-hw" style="flex:1;height:38px;font-size:.85rem;">Сохранить ДЗ</button>
+      <button type="button" class="btn-primary" id="btn-delete-slot-hw" style="flex:0 0 auto;height:38px;font-size:.85rem;background:var(--danger);color:#fff;display:none;">Убрать ДЗ</button>
+    </div>
   </div>
 </div>
 
@@ -556,6 +699,41 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
       <button type="submit" class="btn-primary" style="flex:1;">Сохранить предмет</button>
       <button type="button" id="btn-delete-subject" class="btn-primary" style="flex:0 0 auto;background:var(--danger);color:#fff;display:none;">Удалить</button>
     </div>
+  </form>
+</div>
+
+<!-- ================= BOTTOM SHEET: FAST ASSIGN HW FROM SUBJECT ================= -->
+<div class="sheet-backdrop" id="sheet-subj-hw-backdrop"></div>
+<div class="sheet" id="sheet-subj-hw">
+  <div class="sheet-grabber"></div>
+  <div class="sheet-header">
+    <h3 class="sheet-title" id="sheet-subj-hw-title">Задать ДЗ</h3>
+    <button class="sheet-close" id="btn-close-subj-hw">Закрыть</button>
+  </div>
+  <form id="subj-hw-form">
+    <input type="hidden" id="fast-hw-subj-id">
+    <div class="form-group">
+      <label for="fast-hw-slot-select">Выберите пару этого предмета</label>
+      <select id="fast-hw-slot-select" class="input-text" required></select>
+    </div>
+    <div class="form-group" style="margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <label for="fast-hw-text" style="margin-bottom:0;">Текст домашнего задания</label>
+        <span id="fast-hw-char-count" style="font-size:.74rem;color:var(--mute);">0 / 600</span>
+      </div>
+      <textarea id="fast-hw-text" class="input-text" style="height:76px;padding:8px 10px;resize:vertical;" placeholder="Прочитать §4, подготовить конспект..." maxlength="600" required></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+      <div>
+        <label for="fast-hw-due" style="font-size:.74rem;">Сдать до (опционально)</label>
+        <input type="date" id="fast-hw-due" class="input-text" style="height:38px;">
+      </div>
+      <div>
+        <label for="fast-hw-link" style="font-size:.74rem;">Ссылка на материалы</label>
+        <input type="url" id="fast-hw-link" class="input-text" style="height:38px;" placeholder="https://...">
+      </div>
+    </div>
+    <button type="submit" class="btn-primary" style="margin-top:6px;">Сохранить ДЗ</button>
   </form>
 </div>
 
@@ -633,18 +811,21 @@ header{display:flex;justify-content:space-between;align-items:flex-start;gap:10p
 
 <script>
 /* ================= STATE & UTILITIES ================= */
-const DN=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-const DS=['Пн','Вт','Ср','Чт','Пт','Сб'];
+const DN = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const DS = ['Пн','Вт','Ср','Чт','Пт','Сб'];
+const MONTHS_ROD = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 
 let state = {
   draft: null,
   published: null,
   isDirty: false,
-  selectedDay: 0,
+  selectedWeekIndex: 1, // 0 = past, 1 = current, 2 = next
+  weekMondays: [],      // [pastMonday, currentMonday, nextMonday]
+  selectedDay: 0,       // 0..5
   historyStack: [],
   historyIdx: -1,
-  activeSlotTarget: null, // { day, slot }
-  dragSource: null        // { day, slot }
+  activeSlotTarget: null, // { day, slot, dateStr }
+  dragSource: null
 };
 
 const $ = sel => document.querySelector(sel);
@@ -668,16 +849,83 @@ function toast(msg) {
   toast._t = setTimeout(() => el.classList.remove('on'), 2500);
 }
 
+/* ================= DATE & TIMEZONE HELPERS (Chisinau) ================= */
+function getChisinauDateParts(d = new Date()) {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Chisinau',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour12: false
+    });
+    const parts = formatter.formatToParts(d);
+    const p = {};
+    parts.forEach(pt => p[pt.type] = pt.value);
+    return {
+      year: parseInt(p.year, 10),
+      month: parseInt(p.month, 10),
+      day: parseInt(p.day, 10),
+      dateStr: `${p.year}-${p.month}-${p.day}`
+    };
+  } catch (e) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return { year: y, month: d.getMonth() + 1, day: d.getDate(), dateStr: `${y}-${m}-${day}` };
+  }
+}
+
+function addDays(dateStr, days) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + days, 12, 0, 0));
+  const ry = dt.getUTCFullYear();
+  const rm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const rd = String(dt.getUTCDate()).padStart(2, '0');
+  return `${ry}-${rm}-${rd}`;
+}
+
+function getMonday(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const dow = (dt.getUTCDay() + 6) % 7; // Mon=0..Sun=6
+  return addDays(dateStr, -dow);
+}
+
+function computeThreeMondays() {
+  const today = getChisinauDateParts().dateStr;
+  const curMon = getMonday(today);
+  return [addDays(curMon, -7), curMon, addDays(curMon, 7)];
+}
+
+function formatRange(monStr) {
+  const satStr = addDays(monStr, 5);
+  const [, m1, d1] = monStr.split('-').map(Number);
+  const [, m2, d2] = satStr.split('-').map(Number);
+  if (m1 === m2) {
+    return `${d1}–${d2} ${MONTHS_ROD[m1 - 1]}`;
+  }
+  return `${d1} ${MONTHS_ROD[m1 - 1]} – ${d2} ${MONTHS_ROD[m2 - 1]}`;
+}
+
+function getActiveMonday() {
+  return state.weekMondays[state.selectedWeekIndex] || state.weekMondays[1];
+}
+
+function isPastWeek() {
+  return state.selectedWeekIndex === 0;
+}
+
+function getDateForSlot(dayIndex) {
+  return addDays(getActiveMonday(), dayIndex);
+}
+
 /* ================= UNDO / REDO ================= */
 function recordHistory() {
   if (!state.draft) return;
-  // Truncate future if in middle of stack
   state.historyStack = state.historyStack.slice(0, state.historyIdx + 1);
   state.historyStack.push(JSON.parse(JSON.stringify(state.draft)));
-  // Limit to 25 states
-  if (state.historyStack.length > 25) {
-    state.historyStack.shift();
-  }
+  if (state.historyStack.length > 25) state.historyStack.shift();
   state.historyIdx = state.historyStack.length - 1;
   updateUndoRedoButtons();
 }
@@ -735,9 +983,7 @@ async function autoSaveDraft() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state.draft)
     });
-    if (!res.ok) {
-      console.warn('Draft autosave error:', res.status);
-    }
+    if (!res.ok) console.warn('Draft autosave error:', res.status);
   } catch (e) {
     console.warn('Network autosave error', e);
   }
@@ -772,16 +1018,23 @@ function showLoginScreen() {
 }
 
 function onLoginSuccess(data) {
+  state.weekMondays = computeThreeMondays();
   state.draft = data.draft;
-  state.published = data.draft; // base reference
+  state.published = data.draft;
+
+  // Ensure 3 weeks structure exists
+  if (!state.draft.weeks) state.draft.weeks = {};
+  state.weekMondays.forEach(mon => {
+    if (!state.draft.weeks[mon]) {
+      state.draft.weeks[mon] = { days: JSON.parse(JSON.stringify(state.draft.template || [[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null],[null,null,null,null]])) };
+    }
+  });
+  if (!Array.isArray(state.draft.homework)) state.draft.homework = [];
+
   state.historyStack = [JSON.parse(JSON.stringify(state.draft))];
   state.historyIdx = 0;
 
-  if (data.isDirty) {
-    markDirty();
-  } else {
-    markClean();
-  }
+  if (data.isDirty) markDirty(); else markClean();
 
   $('#login-screen').classList.add('hidden');
   $('#app-screen').classList.remove('hidden');
@@ -860,22 +1113,38 @@ function updateHeaderUpdated(isoDate) {
   $('#hdr-updated').textContent = txt;
 }
 
-/* ================= NAVIGATION TABS ================= */
+/* ================= MAIN NAVIGATION TABS ================= */
 $$('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     $$('.nav-tab').forEach(t => t.setAttribute('aria-selected', 'false'));
     tab.setAttribute('aria-selected', 'true');
     const tabName = tab.dataset.tab;
 
-    ['schedule', 'subjects', 'overrides', 'bells', 'history'].forEach(n => {
+    ['schedule', 'subjects', 'homework', 'overrides', 'bells', 'history'].forEach(n => {
       $(`#tab-content-${n}`).classList.toggle('hidden', n !== tabName);
     });
 
     if (tabName === 'history') loadHistory();
+    if (tabName === 'homework') renderHomeworkList();
   });
 });
 
-/* Day switcher */
+/* Week Switcher Navigation */
+$('#btn-prev-week').addEventListener('click', () => {
+  if (state.selectedWeekIndex > 0) {
+    state.selectedWeekIndex--;
+    renderScheduleTab();
+  }
+});
+
+$('#btn-next-week').addEventListener('click', () => {
+  if (state.selectedWeekIndex < 2) {
+    state.selectedWeekIndex++;
+    renderScheduleTab();
+  }
+});
+
+/* Day tabs */
 $$('.day-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     $$('.day-tab').forEach(b => b.setAttribute('aria-selected', 'false'));
@@ -901,12 +1170,49 @@ function getSubject(id) {
   return state.draft.subjects.find(s => s.id === id) || null;
 }
 
+function getActiveWeekDays() {
+  const mon = getActiveMonday();
+  if (!state.draft.weeks[mon]) {
+    state.draft.weeks[mon] = { days: JSON.parse(JSON.stringify(state.draft.template)) };
+  }
+  return state.draft.weeks[mon].days;
+}
+
+function getHomeworkForSlot(dateStr, slotIndex) {
+  if (!state.draft || !Array.isArray(state.draft.homework)) return null;
+  return state.draft.homework.find(h => h.date === dateStr && h.slot === slotIndex) || null;
+}
+
 function renderAll() {
   checkSoftWarnings();
-  renderDayView();
+  renderScheduleTab();
   renderSubjectsList();
+  renderHomeworkList();
   renderOverridesList();
   renderBellsList();
+}
+
+function renderScheduleTab() {
+  const mon = getActiveMonday();
+  const titles = ['Прошлая неделя', 'Эта неделя', 'Следующая неделя'];
+  $('#week-title-text').textContent = titles[state.selectedWeekIndex];
+  $('#week-range-text').textContent = formatRange(mon);
+
+  $('#btn-prev-week').disabled = state.selectedWeekIndex === 0;
+  $('#btn-next-week').disabled = state.selectedWeekIndex === 2;
+
+  $('#read-only-banner').classList.toggle('hidden', !isPastWeek());
+
+  // Update day tab dates
+  for (let i = 0; i < 6; i++) {
+    const dStr = addDays(mon, i);
+    const dayNum = parseInt(dStr.split('-')[2], 10);
+    const el = $(`#dnum-${i}`);
+    if (el) el.textContent = dayNum;
+  }
+
+  const isGrid = $('.day-tab[data-day="w"]').getAttribute('aria-selected') === 'true';
+  if (isGrid) renderWeekGrid(); else renderDayView();
 }
 
 /* Soft conflict detection */
@@ -917,16 +1223,28 @@ function checkSoftWarnings() {
 
   const warnings = [];
 
-  // Check subjects without teacher or room
+  // Check subjects without place
   state.draft.subjects.forEach(s => {
     if (!s.place || s.place.trim() === '') {
       warnings.push(`Предмет «${s.name}» не имеет указанного места проведения.`);
     }
   });
 
+  // Check homework due dates
+  if (Array.isArray(state.draft.homework)) {
+    state.draft.homework.forEach(hw => {
+      if (hw.due && hw.due < hw.date) {
+        warnings.push(`ДЗ к паре ${hw.date}: срок сдачи (${hw.due}) раньше даты проведения пары.`);
+      }
+      if (!hw.text && hw.link) {
+        warnings.push(`ДЗ к паре ${hw.date}: указана ссылка, но не заполнен текст задания.`);
+      }
+    });
+  }
+
   if (warnings.length > 0) {
     box.style.display = 'flex';
-    warnings.slice(0, 3).forEach(w => {
+    warnings.slice(0, 4).forEach(w => {
       const div = document.createElement('div');
       div.className = 'warn-item';
       div.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><span>${escapeHtml(w)}</span>`;
@@ -940,40 +1258,47 @@ function checkSoftWarnings() {
 /* Single Day Render */
 function renderDayView() {
   const d = state.selectedDay;
-  $('#current-day-name').textContent = DN[d];
-  const daySlots = state.draft.week[d];
+  const dateStr = getDateForSlot(d);
+  const [, m, dayNum] = dateStr.split('-').map(Number);
+  $('#current-day-name').textContent = `${DN[d]}, ${dayNum} ${MONTHS_ROD[m - 1]}`;
+
+  const daySlots = getActiveWeekDays()[d];
   const activeCount = daySlots.filter(Boolean).length;
   $('#current-day-count').textContent = `${activeCount} ${activeCount === 1 ? 'пара' : activeCount < 5 ? 'пары' : 'пар'}`;
 
   const container = $('#slots-container');
   container.innerHTML = '';
 
+  const past = isPastWeek();
+
   for (let slot = 0; slot < 4; slot++) {
     const subId = daySlots[slot];
     const sub = getSubject(subId);
     const times = state.draft.bells[slot];
+    const hw = getHomeworkForSlot(dateStr, slot);
 
     const card = document.createElement('div');
     card.dataset.day = d;
     card.dataset.slot = slot;
 
     if (!sub) {
-      card.className = 'slot-block empty';
+      card.className = 'slot-block empty' + (past ? ' read-only' : '');
       card.innerHTML = `
         <div class="slot-time" style="font-size:1.15rem;">${slot + 1} пара · ${times[0]}–${times[1]}</div>
         <div class="slot-empty-title">
-          <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span>Добавить пару</span>
+          ${past ? '<span>Пары нет</span>' : '<svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Добавить пару</span>'}
         </div>
       `;
-      card.addEventListener('click', () => openSubjectPicker(d, slot));
+      if (!past) {
+        card.addEventListener('click', () => openSlotSheet(d, slot));
+      }
     } else {
-      card.className = `slot-block v-${sub.venue || 'r'}`;
-      card.setAttribute('draggable', 'true');
+      card.className = `slot-block v-${sub.venue || 'r'}` + (past ? ' read-only' : '');
+      if (!past) card.setAttribute('draggable', 'true');
 
-      card.innerHTML = `
-        <div class="slot-top">
-          <div class="slot-time">${slot + 1} пара · ${times[0]}–${times[1]}</div>
+      let actionsHtml = '';
+      if (!past) {
+        actionsHtml = `
           <div class="slot-actions">
             <button class="btn-slot-act btn-move-up" title="Переместить выше" aria-label="Переместить пару выше" ${slot === 0 ? 'disabled style="opacity:.3;"' : ''}>
               <svg class="icon" viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
@@ -985,39 +1310,50 @@ function renderDayView() {
               <svg class="icon" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             </button>
           </div>
+        `;
+      }
+
+      const hwBadge = hw ? `<span class="slot-tag-hw">ДЗ</span>` : '';
+      const hwPreview = hw ? `<div class="slot-hw-preview"><strong>ДЗ:</strong> ${escapeHtml(hw.text.slice(0, 75))}${hw.text.length > 75 ? '…' : ''}</div>` : '';
+
+      card.innerHTML = `
+        <div class="slot-top">
+          <div class="slot-time">${slot + 1} пара · ${times[0]}–${times[1]}</div>
+          ${actionsHtml}
         </div>
         <div class="slot-main">
           <div class="slot-name">
             ${escapeHtml(sub.name)}
             ${sub.type ? `<span class="slot-tag">${escapeHtml(sub.type)}</span>` : ''}
+            ${hwBadge}
           </div>
           <div class="slot-place">${escapeHtml(sub.place || 'Место не указано')}</div>
           <div class="slot-teacher">${escapeHtml(sub.teacher || 'Преподаватель не указан')}</div>
+          ${hwPreview}
         </div>
       `;
 
-      // Click card body to edit
       card.addEventListener('click', e => {
         if (e.target.closest('.slot-actions')) return;
-        openSubjectPicker(d, slot);
+        openSlotSheet(d, slot);
       });
 
-      // Actions buttons
-      card.querySelector('.btn-move-up')?.addEventListener('click', e => {
-        e.stopPropagation();
-        swapSlots(d, slot, d, slot - 1);
-      });
-      card.querySelector('.btn-move-down')?.addEventListener('click', e => {
-        e.stopPropagation();
-        swapSlots(d, slot, d, slot + 1);
-      });
-      card.querySelector('.btn-dup')?.addEventListener('click', e => {
-        e.stopPropagation();
-        promptDuplicate(d, slot);
-      });
+      if (!past) {
+        card.querySelector('.btn-move-up')?.addEventListener('click', e => {
+          e.stopPropagation();
+          swapSlots(d, slot, d, slot - 1);
+        });
+        card.querySelector('.btn-move-down')?.addEventListener('click', e => {
+          e.stopPropagation();
+          swapSlots(d, slot, d, slot + 1);
+        });
+        card.querySelector('.btn-dup')?.addEventListener('click', e => {
+          e.stopPropagation();
+          promptDuplicate(d, slot);
+        });
 
-      // Drag & Drop events
-      attachDragEvents(card, d, slot);
+        attachDragEvents(card, d, slot);
+      }
     }
 
     container.appendChild(card);
@@ -1027,44 +1363,67 @@ function renderDayView() {
 /* Week Grid Render */
 function renderWeekGrid() {
   const container = $('#week-grid-table');
-  container.innerHTML = '<span></span>' + DS.map(n => `<span class="h">${n}</span>`).join('');
+  const mon = getActiveMonday();
+  container.innerHTML = '<span></span>' + DS.map((n, i) => {
+    const dStr = addDays(mon, i);
+    const num = parseInt(dStr.split('-')[2], 10);
+    return `<span class="h">${n}<br><small style="font-weight:400;opacity:.8;">${num}</small></span>`;
+  }).join('');
+
+  const weekDays = getActiveWeekDays();
 
   for (let slot = 0; slot < 4; slot++) {
     container.innerHTML += `<span class="rl">${slot + 1}</span>`;
     for (let d = 0; d < 6; d++) {
-      const subId = state.draft.week[d][slot];
+      const subId = weekDays[d][slot];
       const sub = getSubject(subId);
+      const dateStr = addDays(mon, d);
+      const hw = getHomeworkForSlot(dateStr, slot);
+
       const btn = document.createElement('button');
       btn.dataset.day = d;
       btn.dataset.slot = slot;
 
       if (sub) {
-        btn.className = `wk-c v-${sub.venue || 'r'}`;
+        btn.className = `wk-c v-${sub.venue || 'r'}` + (hw ? ' has-hw' : '');
         btn.textContent = sub.short || sub.name;
       } else {
         btn.className = 'wk-c empty';
         btn.textContent = '+';
       }
-      btn.addEventListener('click', () => openSubjectPicker(d, slot));
+      btn.addEventListener('click', () => openSlotSheet(d, slot));
       container.appendChild(btn);
     }
   }
 }
 
-/* Swap slots between any day/slot */
+/* Swap slots */
 function swapSlots(d1, s1, d2, s2) {
-  if (d2 < 0 || d2 > 5 || s2 < 0 || s2 > 3) return;
+  if (isPastWeek() || d2 < 0 || d2 > 5 || s2 < 0 || s2 > 3) return;
   recordHistory();
-  const temp = state.draft.week[d1][s1];
-  state.draft.week[d1][s1] = state.draft.week[d2][s2];
-  state.draft.week[d2][s2] = temp;
+  const weekDays = getActiveWeekDays();
+  const temp = weekDays[d1][s1];
+  weekDays[d1][s1] = weekDays[d2][s2];
+  weekDays[d2][s2] = temp;
+
+  // If apply to future is checked or current week
+  if ($('#chk-apply-future')?.checked || state.selectedWeekIndex === 1) {
+    state.draft.template[d1][s1] = weekDays[d1][s1];
+    state.draft.template[d2][s2] = weekDays[d2][s2];
+    if (state.selectedWeekIndex === 1 && state.draft.weeks[state.weekMondays[2]]) {
+      state.draft.weeks[state.weekMondays[2]].days[d1][s1] = weekDays[d1][s1];
+      state.draft.weeks[state.weekMondays[2]].days[d2][s2] = weekDays[d2][s2];
+    }
+  }
+
   markDirty();
   renderAll();
 }
 
-/* Duplicate slot */
 function promptDuplicate(fromDay, fromSlot) {
-  const subId = state.draft.week[fromDay][fromSlot];
+  if (isPastWeek()) return;
+  const weekDays = getActiveWeekDays();
+  const subId = weekDays[fromDay][fromSlot];
   if (!subId) return;
 
   const targetDayStr = prompt('В какой день скопировать? Введите 1 (Пн) - 6 (Сб):', String(fromDay + 1));
@@ -1084,15 +1443,24 @@ function promptDuplicate(fromDay, fromSlot) {
   }
 
   recordHistory();
-  state.draft.week[targetDay][targetSlot] = subId;
+  weekDays[targetDay][targetSlot] = subId;
+
+  if (state.selectedWeekIndex === 1) {
+    state.draft.template[targetDay][targetSlot] = subId;
+    if (state.draft.weeks[state.weekMondays[2]]) {
+      state.draft.weeks[state.weekMondays[2]].days[targetDay][targetSlot] = subId;
+    }
+  }
+
   markDirty();
   renderAll();
   toast(`Скопировано в ${DN[targetDay]}, ${targetSlot + 1} пара`);
 }
 
-/* Drag and Drop with Touch support */
+/* Drag and Drop */
 function attachDragEvents(el, day, slot) {
   el.addEventListener('dragstart', e => {
+    if (isPastWeek()) return;
     state.dragSource = { day, slot };
     el.classList.add('dragging');
     e.dataTransfer.setData('text/plain', `${day},${slot}`);
@@ -1104,6 +1472,7 @@ function attachDragEvents(el, day, slot) {
   });
 
   el.addEventListener('dragover', e => {
+    if (isPastWeek()) return;
     e.preventDefault();
     el.classList.add('drag-over');
   });
@@ -1113,6 +1482,7 @@ function attachDragEvents(el, day, slot) {
   });
 
   el.addEventListener('drop', e => {
+    if (isPastWeek()) return;
     e.preventDefault();
     el.classList.remove('drag-over');
     if (!state.dragSource) return;
@@ -1124,26 +1494,53 @@ function attachDragEvents(el, day, slot) {
   });
 }
 
-/* ================= SUBJECT PICKER SHEET ================= */
-function openSubjectPicker(day, slot) {
-  state.activeSlotTarget = { day, slot };
-  const currentSubId = state.draft.week[day][slot];
-  $('#sheet-picker-title').textContent = `${DN[day]} · ${slot + 1} пара`;
+/* ================= SLOT BOTTOM SHEET & HOMEWORK ================= */
+function openSlotSheet(day, slot) {
+  const dateStr = getDateForSlot(day);
+  state.activeSlotTarget = { day, slot, dateStr };
+
+  const weekDays = getActiveWeekDays();
+  const currentSubId = weekDays[day][slot];
+  const sub = getSubject(currentSubId);
+
+  const [, m, dayNum] = dateStr.split('-').map(Number);
+  $('#sheet-picker-title').textContent = `${DN[day]}, ${dayNum} ${MONTHS_ROD[m - 1]} · ${slot + 1} пара`;
+
+  const past = isPastWeek();
+  $('#picker-slot-edit-section').style.display = past ? 'none' : 'block';
+  $('#label-apply-future').style.display = state.selectedWeekIndex === 1 ? 'flex' : 'none';
+
   $('#picker-search').value = '';
   renderPickerList('');
+
+  // Homework section setup
+  const hw = getHomeworkForSlot(dateStr, slot);
+  $('#hw-slot-text').value = hw ? hw.text : '';
+  $('#hw-slot-due').value = hw ? (hw.due || '') : '';
+  $('#hw-slot-link').value = hw ? (hw.link || '') : '';
+  updateHwCharCounter();
+
+  $('#btn-delete-slot-hw').style.display = hw ? 'block' : 'none';
+  $('#hw-slot-box').style.display = sub ? 'block' : (hw ? 'block' : 'none');
 
   $('#sheet-picker-backdrop').classList.add('active');
   $('#sheet-picker').classList.add('active');
 }
 
-function closeSubjectPicker() {
+function closeSlotSheet() {
   $('#sheet-picker-backdrop').classList.remove('active');
   $('#sheet-picker').classList.remove('active');
   state.activeSlotTarget = null;
 }
 
-$('#btn-close-picker').addEventListener('click', closeSubjectPicker);
-$('#sheet-picker-backdrop').addEventListener('click', closeSubjectPicker);
+$('#btn-close-picker').addEventListener('click', closeSlotSheet);
+$('#sheet-picker-backdrop').addEventListener('click', closeSlotSheet);
+
+function updateHwCharCounter() {
+  const len = $('#hw-slot-text').value.length;
+  $('#hw-slot-char-count').textContent = `${len} / 600`;
+}
+$('#hw-slot-text').addEventListener('input', updateHwCharCounter);
 
 function renderPickerList(query) {
   const container = $('#picker-list');
@@ -1170,12 +1567,22 @@ function renderPickerList(query) {
       <p>${escapeHtml(sub.place || 'Место не указано')} · ${escapeHtml(sub.teacher || 'Без преподавателя')}</p>
     `;
     btn.addEventListener('click', () => {
-      if (!state.activeSlotTarget) return;
+      if (!state.activeSlotTarget || isPastWeek()) return;
       recordHistory();
       const { day, slot } = state.activeSlotTarget;
-      state.draft.week[day][slot] = sub.id;
+      const weekDays = getActiveWeekDays();
+      weekDays[day][slot] = sub.id;
+
+      const applyFuture = $('#chk-apply-future').checked;
+      if (applyFuture && state.selectedWeekIndex <= 1) {
+        state.draft.template[day][slot] = sub.id;
+        if (state.draft.weeks[state.weekMondays[2]]) {
+          state.draft.weeks[state.weekMondays[2]].days[day][slot] = sub.id;
+        }
+      }
+
       markDirty();
-      closeSubjectPicker();
+      closeSlotSheet();
       renderAll();
       toast(`Назначено: ${sub.short || sub.name}`);
     });
@@ -1183,25 +1590,300 @@ function renderPickerList(query) {
   });
 }
 
-$('#picker-search').addEventListener('input', e => {
-  renderPickerList(e.target.value);
-});
+$('#picker-search').addEventListener('input', e => renderPickerList(e.target.value));
 
 $('#btn-picker-clear-slot').addEventListener('click', () => {
-  if (!state.activeSlotTarget) return;
+  if (!state.activeSlotTarget || isPastWeek()) return;
   recordHistory();
   const { day, slot } = state.activeSlotTarget;
-  state.draft.week[day][slot] = null;
+  const weekDays = getActiveWeekDays();
+  weekDays[day][slot] = null;
+
+  const applyFuture = $('#chk-apply-future').checked;
+  if (applyFuture && state.selectedWeekIndex <= 1) {
+    state.draft.template[day][slot] = null;
+    if (state.draft.weeks[state.weekMondays[2]]) {
+      state.draft.weeks[state.weekMondays[2]].days[day][slot] = null;
+    }
+  }
+
   markDirty();
-  closeSubjectPicker();
+  closeSlotSheet();
   renderAll();
   toast('Пара убрана');
 });
 
 $('#btn-picker-create-new').addEventListener('click', () => {
-  closeSubjectPicker();
+  closeSlotSheet();
   openSubjectForm(null);
 });
+
+// Save homework from slot sheet
+$('#btn-save-slot-hw').addEventListener('click', () => {
+  if (!state.activeSlotTarget) return;
+  const { day, slot, dateStr } = state.activeSlotTarget;
+  const weekDays = getActiveWeekDays();
+  const subId = weekDays[day][slot];
+  if (!subId) {
+    alert('Сначала назначьте предмет на эту пару.');
+    return;
+  }
+
+  const text = $('#hw-slot-text').value.trim();
+  const due = $('#hw-slot-due').value || null;
+  const link = $('#hw-slot-link').value.trim() || null;
+
+  if (!text) {
+    alert('Введите текст задания.');
+    return;
+  }
+  if (link && !/^https?:\/\//i.test(link)) {
+    alert('Ссылка должна начинаться с http:// или https://');
+    return;
+  }
+
+  recordHistory();
+  if (!Array.isArray(state.draft.homework)) state.draft.homework = [];
+
+  const existingIdx = state.draft.homework.findIndex(h => h.date === dateStr && h.slot === slot);
+  const nowIso = new Date().toISOString();
+
+  if (existingIdx >= 0) {
+    state.draft.homework[existingIdx].text = text;
+    state.draft.homework[existingIdx].due = due;
+    state.draft.homework[existingIdx].link = link;
+    state.draft.homework[existingIdx].subjectId = subId;
+    state.draft.homework[existingIdx].updatedAt = nowIso;
+  } else {
+    state.draft.homework.push({
+      id: 'h_' + Math.random().toString(36).slice(2, 8),
+      date: dateStr,
+      slot,
+      subjectId: subId,
+      text,
+      due,
+      link,
+      updatedAt: nowIso
+    });
+  }
+
+  markDirty();
+  closeSlotSheet();
+  renderAll();
+  toast('Домашнее задание сохранено');
+});
+
+// Delete homework from slot sheet
+$('#btn-delete-slot-hw').addEventListener('click', () => {
+  if (!state.activeSlotTarget) return;
+  const { slot, dateStr } = state.activeSlotTarget;
+  if (!confirm('Убрать домашнее задание к этой паре?')) return;
+
+  recordHistory();
+  state.draft.homework = state.draft.homework.filter(h => !(h.date === dateStr && h.slot === slot));
+  markDirty();
+  closeSlotSheet();
+  renderAll();
+  toast('ДЗ убрано');
+});
+
+/* ================= FAST PATH: ASSIGN HW FROM SUBJECT ================= */
+function openSubjectHwForm(subject) {
+  $('#fast-hw-subj-id').value = subject.id;
+  $('#sheet-subj-hw-title').textContent = `ДЗ: ${subject.short || subject.name}`;
+  $('#fast-hw-text').value = '';
+  $('#fast-hw-due').value = '';
+  $('#fast-hw-link').value = '';
+  $('#fast-hw-char-count').textContent = '0 / 600';
+
+  // Find all slots of this subject in current and next week
+  const select = $('#fast-hw-slot-select');
+  select.innerHTML = '';
+  const upcomingSlots = [];
+
+  // Examine current week (index 1) and next week (index 2)
+  [1, 2].forEach(wIdx => {
+    const mon = state.weekMondays[wIdx];
+    const days = state.draft.weeks[mon]?.days;
+    if (!days) return;
+    for (let d = 0; d < 6; d++) {
+      for (let s = 0; s < 4; s++) {
+        if (days[d][s] === subject.id) {
+          const dateStr = addDays(mon, d);
+          upcomingSlots.push({ dateStr, slot: s, day: d, wIdx });
+        }
+      }
+    }
+  });
+
+  if (upcomingSlots.length === 0) {
+    alert(`Предмет «${subject.name}» сейчас не стоит в расписании текущей или следующей недели. Сначала добавьте его в пару.`);
+    return;
+  }
+
+  // Sort chronologically
+  upcomingSlots.sort((a, b) => a.dateStr.localeCompare(b.dateStr) || a.slot - b.slot);
+
+  upcomingSlots.forEach((item, idx) => {
+    const [, m, dayNum] = item.dateStr.split('-').map(Number);
+    const opt = document.createElement('option');
+    opt.value = `${item.dateStr}|${item.slot}`;
+    opt.textContent = `${DN[item.day]}, ${dayNum} ${MONTHS_ROD[m - 1]} · ${item.slot + 1} пара`;
+    if (idx === 0) opt.selected = true;
+    select.appendChild(opt);
+  });
+
+  $('#sheet-subj-hw-backdrop').classList.add('active');
+  $('#sheet-subj-hw').classList.add('active');
+}
+
+function closeSubjectHwForm() {
+  $('#sheet-subj-hw-backdrop').classList.remove('active');
+  $('#sheet-subj-hw').classList.remove('active');
+}
+
+$('#btn-close-subj-hw').addEventListener('click', closeSubjectHwForm);
+$('#sheet-subj-hw-backdrop').addEventListener('click', closeSubjectHwForm);
+
+$('#fast-hw-text').addEventListener('input', () => {
+  $('#fast-hw-char-count').textContent = `${$('#fast-hw-text').value.length} / 600`;
+});
+
+$('#subj-hw-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const subId = $('#fast-hw-subj-id').value;
+  const [dateStr, slotStr] = $('#fast-hw-slot-select').value.split('|');
+  const slot = parseInt(slotStr, 10);
+  const text = $('#fast-hw-text').value.trim();
+  const due = $('#fast-hw-due').value || null;
+  const link = $('#fast-hw-link').value.trim() || null;
+
+  if (!text) return;
+  if (link && !/^https?:\/\//i.test(link)) {
+    alert('Ссылка должна начинаться с http:// или https://');
+    return;
+  }
+
+  recordHistory();
+  if (!Array.isArray(state.draft.homework)) state.draft.homework = [];
+
+  const existingIdx = state.draft.homework.findIndex(h => h.date === dateStr && h.slot === slot);
+  const nowIso = new Date().toISOString();
+
+  if (existingIdx >= 0) {
+    state.draft.homework[existingIdx].text = text;
+    state.draft.homework[existingIdx].due = due;
+    state.draft.homework[existingIdx].link = link;
+    state.draft.homework[existingIdx].subjectId = subId;
+    state.draft.homework[existingIdx].updatedAt = nowIso;
+  } else {
+    state.draft.homework.push({
+      id: 'h_' + Math.random().toString(36).slice(2, 8),
+      date: dateStr,
+      slot,
+      subjectId: subId,
+      text,
+      due,
+      link,
+      updatedAt: nowIso
+    });
+  }
+
+  markDirty();
+  closeSubjectHwForm();
+  renderAll();
+  toast('Домашнее задание добавлено');
+});
+
+/* ================= HOMEWORK TAB MANAGEMENT ================= */
+function renderHomeworkList() {
+  const container = $('#homework-list-container');
+  container.innerHTML = '';
+  const homework = state.draft.homework || [];
+
+  if (homework.length === 0) {
+    container.innerHTML = '<p style="font-size:.85rem;color:var(--mute);text-align:center;padding:16px;">Активных домашних заданий нет</p>';
+    return;
+  }
+
+  // Sort chronologically
+  const sorted = [...homework].sort((a, b) => a.date.localeCompare(b.date) || a.slot - b.slot);
+
+  sorted.forEach(hw => {
+    const sub = getSubject(hw.subjectId);
+    const card = document.createElement('div');
+
+    // Check if orphaned
+    const mon = getMonday(hw.date);
+    const dow = (new Date(hw.date).getDay() + 6) % 7;
+    const weekObj = state.draft.weeks[mon];
+    const actualSubId = weekObj?.days?.[dow]?.[hw.slot];
+    const isOrphaned = actualSubId !== hw.subjectId;
+
+    card.className = 'hw-card' + (isOrphaned ? ' orphaned' : '');
+
+    const [, m, dayNum] = hw.date.split('-').map(Number);
+    const dateFormatted = `${dayNum} ${MONTHS_ROD[m - 1]}`;
+
+    let dueHtml = '';
+    if (hw.due) {
+      const [, dm, dday] = hw.due.split('-').map(Number);
+      dueHtml = `<span class="hw-due-tag">Сдать до: ${dday} ${MONTHS_ROD[dm - 1]}</span>`;
+    }
+
+    let linkHtml = '';
+    if (hw.link) {
+      linkHtml = `<a href="${escapeHtml(hw.link)}" target="_blank" rel="noopener noreferrer" class="hw-link-btn">Материалы ↗</a>`;
+    }
+
+    const orphanNotice = isOrphaned
+      ? `<div class="hw-badge-orphan">⚠️ ДЗ без пары (пара была убрана или заменена)</div>`
+      : '';
+
+    card.innerHTML = `
+      <div class="hw-top">
+        <div>
+          <div class="hw-date">${escapeHtml(sub?.name || 'Предмет удалён')} ${sub?.type ? `<span class="slot-tag">${sub.type}</span>` : ''}</div>
+          <div class="hw-slot-badge">${dateFormatted} · ${hw.slot + 1} пара (${state.draft.bells[hw.slot][0]})</div>
+          ${orphanNotice}
+        </div>
+      </div>
+      <div class="hw-body">${escapeHtml(hw.text)}</div>
+      <div class="hw-meta-row">
+        ${dueHtml}
+        ${linkHtml}
+      </div>
+      <div class="hw-actions">
+        ${isOrphaned ? `<button class="btn-hw-act btn-reassign" style="color:var(--accent);">Перенести на пару</button>` : ''}
+        <button class="btn-hw-act btn-edit-hw">Изменить</button>
+        <button class="btn-hw-act btn-del-hw" style="color:var(--danger);">Убрать</button>
+      </div>
+    `;
+
+    card.querySelector('.btn-edit-hw')?.addEventListener('click', () => {
+      // Find week index and day
+      const wIdx = state.weekMondays.indexOf(mon);
+      if (wIdx >= 0) state.selectedWeekIndex = wIdx;
+      state.selectedDay = dow;
+      openSlotSheet(dow, hw.slot);
+    });
+
+    card.querySelector('.btn-del-hw')?.addEventListener('click', () => {
+      if (!confirm('Убрать это домашнее задание?')) return;
+      recordHistory();
+      state.draft.homework = state.draft.homework.filter(h => h.id !== hw.id);
+      markDirty();
+      renderAll();
+      toast('ДЗ удалено');
+    });
+
+    card.querySelector('.btn-reassign')?.addEventListener('click', () => {
+      if (sub) openSubjectHwForm(sub); else alert('Предмет этого задания был удалён.');
+    });
+
+    container.appendChild(card);
+  });
+}
 
 /* ================= SUBJECTS MANAGEMENT ================= */
 function renderSubjectsList() {
@@ -1209,9 +1891,8 @@ function renderSubjectsList() {
   container.innerHTML = '';
 
   state.draft.subjects.forEach(sub => {
-    // Count how many times it is used in the schedule
     let usageCount = 0;
-    state.draft.week.forEach(d => {
+    state.draft.template.forEach(d => {
       d.forEach(s => { if (s === sub.id) usageCount++; });
     });
 
@@ -1222,19 +1903,22 @@ function renderSubjectsList() {
         <h3>${escapeHtml(sub.name)} ${sub.type ? `<span class="slot-tag">${escapeHtml(sub.type)}</span>` : ''}</h3>
         <div class="subj-meta">
           ${escapeHtml(sub.place || '—')} · ${escapeHtml(sub.teacher || '—')}<br>
-          <span style="color:var(--ink);font-weight:600;">В расписании: ${usageCount} ${usageCount === 1 ? 'раз' : 'раза'}</span>
+          <span style="color:var(--ink);font-weight:600;">В шаблоне: ${usageCount} ${usageCount === 1 ? 'пара' : 'пары'}</span>
         </div>
       </div>
       <div class="subj-actions">
+        <button class="btn-subj-hw" title="Задать ДЗ">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <span>Задать ДЗ</span>
+        </button>
         <button class="btn-slot-act btn-edit-subj" title="Редактировать" aria-label="Редактировать предмет">
           <svg class="icon" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
       </div>
     `;
 
-    item.querySelector('.btn-edit-subj').addEventListener('click', () => {
-      openSubjectForm(sub);
-    });
+    item.querySelector('.btn-subj-hw').addEventListener('click', () => openSubjectHwForm(sub));
+    item.querySelector('.btn-edit-subj').addEventListener('click', () => openSubjectForm(sub));
 
     container.appendChild(item);
   });
@@ -1248,7 +1932,6 @@ function openSubjectForm(sub) {
   $('#sub-venue').value = sub ? (sub.venue || 'r') : 'r';
   $('#sub-teacher').value = sub ? (sub.teacher || '') : '';
 
-  // Parse place into building and room if possible
   if (sub && sub.place) {
     const m = sub.place.match(/^(к\d+)\s*·\s*(.*)$/);
     if (m) {
@@ -1297,7 +1980,6 @@ $('#subject-form').addEventListener('submit', e => {
   recordHistory();
 
   if (id) {
-    // Edit existing subject
     const existing = state.draft.subjects.find(s => s.id === id);
     if (existing) {
       existing.name = name;
@@ -1309,7 +1991,6 @@ $('#subject-form').addEventListener('submit', e => {
     }
     toast('Предмет обновлён');
   } else {
-    // Create new subject
     const newId = 's_' + Date.now().toString(36);
     state.draft.subjects.push({
       id: newId,
@@ -1332,28 +2013,34 @@ $('#btn-delete-subject').addEventListener('click', () => {
   const id = $('#sub-id').value;
   if (!id) return;
 
-  // Count usage in schedule
   let usageCount = 0;
-  state.draft.week.forEach(d => {
+  state.draft.template.forEach(d => {
     d.forEach(s => { if (s === id) usageCount++; });
   });
 
   const confirmMsg = usageCount > 0
-    ? `Предмет стоит в ${usageCount} ${usageCount === 1 ? 'паре' : 'парах'}. Убрать его из расписания и удалить?`
+    ? `Предмет стоит в ${usageCount} ${usageCount === 1 ? 'паре' : 'парах'} шаблона. Убрать его из расписания и удалить?`
     : 'Удалить этот предмет?';
 
   if (!confirm(confirmMsg)) return;
 
   recordHistory();
 
-  // Remove from week grid
-  state.draft.week.forEach((day, di) => {
+  // Remove from template and weeks
+  state.draft.template.forEach((day, di) => {
     day.forEach((slot, si) => {
-      if (slot === id) state.draft.week[di][si] = null;
+      if (slot === id) state.draft.template[di][si] = null;
     });
   });
 
-  // Remove from subjects list
+  Object.values(state.draft.weeks).forEach(wObj => {
+    wObj.days.forEach((day, di) => {
+      day.forEach((slot, si) => {
+        if (slot === id) wObj.days[di][si] = null;
+      });
+    });
+  });
+
   state.draft.subjects = state.draft.subjects.filter(s => s.id !== id);
 
   markDirty();
@@ -1412,8 +2099,7 @@ function renderOverridesList() {
 }
 
 function openOverrideForm() {
-  // Set default date to today
-  $('#ov-date').value = new Date().toISOString().slice(0, 10);
+  $('#ov-date').value = getChisinauDateParts().dateStr;
   $('#ov-slot').value = '0';
   $('#ov-action').value = 'cancel';
   $('#ov-note').value = '';
@@ -1428,7 +2114,6 @@ function openOverrideForm() {
   });
 
   $('#ov-subject-wrap').style.display = 'none';
-
   $('#sheet-override-backdrop').classList.add('active');
   $('#sheet-override').classList.add('active');
 }
@@ -1532,11 +2217,12 @@ async function loadHistory() {
       el.className = 'history-item';
       const d = new Date(item.updatedAt);
       const dateStr = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      const hwNote = item.homeworkCount !== undefined ? ` · ДЗ: ${item.homeworkCount}` : '';
 
       el.innerHTML = `
         <div>
           <span class="history-v">Версия #${item.version}</span>
-          <div class="history-time">${dateStr} · предметов: ${item.subjectsCount || '—'}</div>
+          <div class="history-time">${dateStr} · предметов: ${item.subjectsCount || '—'}${hwNote}</div>
         </div>
         <button class="btn-primary btn-restore" data-v="${item.version}" style="width:auto;height:34px;padding:0 12px;font-size:.82rem;">Вернуть</button>
       `;
@@ -1616,7 +2302,7 @@ function triggerConfetti() {
     p.animate([
       { transform: 'translate(0,0) rotate(0)', opacity: 1 },
       { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist + 60}px) rotate(${Math.random()*540}deg)`, opacity: 0 }
-    ], { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(.2,.8,.3,1)' })
+    ], { duration: 900 + Math.random() * 400, easing: 'cubic-bezier(.2,.7,.3,1)' })
     .onfinish = () => p.remove();
   }
 }
@@ -1634,13 +2320,21 @@ $('#btn-close-preview').addEventListener('click', () => {
 function renderPreview() {
   const area = $('#preview-render-area');
   area.innerHTML = '';
+  const mon = getActiveMonday();
+  const weekDays = getActiveWeekDays();
+
+  const titleWrap = document.createElement('div');
+  titleWrap.style.cssText = 'margin-bottom:12px;text-align:center;font-weight:700;font-size:1.1rem;';
+  titleWrap.textContent = `${$('#week-title-text').textContent} (${formatRange(mon)})`;
+  area.appendChild(titleWrap);
 
   for (let d = 0; d < 6; d++) {
+    const dateStr = addDays(mon, d);
     const daySec = document.createElement('div');
     daySec.style.cssText = 'background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;';
-    daySec.innerHTML = `<h3 style="font:700 1.3rem/1 var(--disp);text-transform:uppercase;margin-bottom:8px;">${DN[d]}</h3>`;
+    daySec.innerHTML = `<h3 style="font:700 1.3rem/1 var(--disp);text-transform:uppercase;margin-bottom:8px;">${DN[d]} (${dateStr})</h3>`;
 
-    const daySlots = state.draft.week[d];
+    const daySlots = weekDays[d];
     let hasAny = false;
 
     daySlots.forEach((subId, idx) => {
@@ -1648,9 +2342,12 @@ function renderPreview() {
       if (!sub) return;
       hasAny = true;
       const t = state.draft.bells[idx];
+      const hw = getHomeworkForSlot(dateStr, idx);
+      const hwText = hw ? `<div style="font-size:.76rem;color:var(--hero-acc);margin-top:2px;">📝 ДЗ: ${escapeHtml(hw.text)}</div>` : '';
+
       const p = document.createElement('div');
       p.style.cssText = `border-left:4px solid var(--${sub.venue || 'r'});padding:4px 8px;margin-bottom:6px;font-size:.85rem;`;
-      p.innerHTML = `<strong>${idx+1}. ${t[0]}</strong> ${escapeHtml(sub.name)} ${sub.type ? `(${escapeHtml(sub.type)})` : ''} · <span style="color:var(--mute);">${escapeHtml(sub.place)}</span>`;
+      p.innerHTML = `<strong>${idx+1}. ${t[0]}</strong> ${escapeHtml(sub.name)} ${sub.type ? `(${escapeHtml(sub.type)})` : ''} · <span style="color:var(--mute);">${escapeHtml(sub.place)}</span>${hwText}`;
       daySec.appendChild(p);
     });
 
@@ -1664,23 +2361,22 @@ function renderPreview() {
 
 /* ================= QR CODE & COPY LINK ================= */
 $('#btn-copy-link').addEventListener('click', () => {
-  const url = location.origin + '/';
+  const url = 'https://timovar42.github.io/fkis/';
   navigator.clipboard.writeText(url).then(() => {
     toast('Ссылка скопирована в буфер');
   }).catch(() => toast('Не удалось скопировать'));
 });
 
 $('#btn-copy-public-link').addEventListener('click', () => {
-  const url = location.origin + '/';
+  const url = 'https://timovar42.github.io/fkis/';
   navigator.clipboard.writeText(url).then(() => {
     toast('Ссылка скопирована');
   });
 });
 
 $('#btn-show-qr').addEventListener('click', () => {
-  const url = location.origin + '/';
+  const url = 'https://timovar42.github.io/fkis/';
   const qrContainer = $('#qr-container');
-  // Generate lightweight SVG QR code via public image or canvas
   qrContainer.innerHTML = `
     <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}&bgcolor=FAFAF8&color=17211D"
          alt="QR код расписания" width="200" height="200" style="border-radius:12px;border:1px solid var(--line);background:#fff;padding:8px;">
@@ -1702,7 +2398,6 @@ $('#sheet-qr-backdrop').addEventListener('click', () => {
 $('#btn-undo').addEventListener('click', undo);
 $('#btn-redo').addEventListener('click', redo);
 
-// Keyboard shortcuts for Ctrl+Z and Ctrl+Y
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
     if (e.shiftKey) redo(); else undo();

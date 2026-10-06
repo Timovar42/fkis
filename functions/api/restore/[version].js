@@ -1,4 +1,4 @@
-import { jsonResponse, errorResponse, requireAuth } from '../_utils.js';
+import { jsonResponse, errorResponse, requireAuth, migrateScheduleData } from '../_utils.js';
 
 export async function onRequestPost(context) {
   const { request, params, env } = context;
@@ -30,18 +30,20 @@ export async function onRequestPost(context) {
     return errorResponse('Ошибка парсинга архивных данных.', 500);
   }
 
-  // Check if caller requested immediate publish via query param ?publish=1
+  const now = new Date();
+  restoredSchedule = migrateScheduleData(restoredSchedule, now);
+  restoredSchedule.updatedAt = now.toISOString();
+
   const url = new URL(request.url);
   const shouldPublish = url.searchParams.get('publish') === '1' || url.searchParams.get('publish') === 'true';
 
-  restoredSchedule.updatedAt = new Date().toISOString();
-
   if (shouldPublish) {
-    // Current becomes history, restored becomes current & draft
     const currentStr = await env.SCHEDULE_KV.get('schedule:current');
     if (currentStr) {
-      const current = JSON.parse(currentStr);
-      await env.SCHEDULE_KV.put(`schedule:history:${current.version || 1}`, currentStr);
+      try {
+        const current = JSON.parse(currentStr);
+        await env.SCHEDULE_KV.put(`schedule:history:${current.version || 1}`, currentStr);
+      } catch (e) {}
     }
     const newVersion = (restoredSchedule.version || 0) + 1;
     restoredSchedule.version = newVersion;
@@ -56,7 +58,6 @@ export async function onRequestPost(context) {
       published: true
     });
   } else {
-    // Restore into draft for safe preview and editing
     await env.SCHEDULE_KV.put('schedule:draft', JSON.stringify(restoredSchedule));
     return jsonResponse({
       ok: true,

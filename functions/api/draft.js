@@ -3,7 +3,7 @@ import {
   errorResponse,
   requireAuth,
   validateSchedule,
-  INITIAL_SCHEDULE
+  migrateScheduleData
 } from './_utils.js';
 
 export async function onRequestGet(context) {
@@ -13,25 +13,32 @@ export async function onRequestGet(context) {
     return errorResponse('Требуется авторизация.', 401);
   }
 
+  const now = new Date();
   let published = null;
   let draft = null;
 
   if (env.SCHEDULE_KV) {
     const pubStr = await env.SCHEDULE_KV.get('schedule:current');
-    if (pubStr) published = JSON.parse(pubStr);
+    if (pubStr) {
+      try { published = JSON.parse(pubStr); } catch (e) {}
+    }
 
     const draftStr = await env.SCHEDULE_KV.get('schedule:draft');
-    if (draftStr) draft = JSON.parse(draftStr);
+    if (draftStr) {
+      try { draft = JSON.parse(draftStr); } catch (e) {}
+    }
   }
 
-  if (!published) published = INITIAL_SCHEDULE;
-  if (!draft) draft = published;
+  published = migrateScheduleData(published, now);
+  draft = draft ? migrateScheduleData(draft, now) : published;
 
   // Compare draft vs published to know if dirty
-  const isDirty = JSON.stringify(draft.week) !== JSON.stringify(published.week) ||
+  const isDirty = JSON.stringify(draft.weeks) !== JSON.stringify(published.weeks) ||
+                  JSON.stringify(draft.template) !== JSON.stringify(published.template) ||
                   JSON.stringify(draft.subjects) !== JSON.stringify(published.subjects) ||
                   JSON.stringify(draft.bells) !== JSON.stringify(published.bells) ||
-                  JSON.stringify(draft.overrides || []) !== JSON.stringify(published.overrides || []);
+                  JSON.stringify(draft.overrides || []) !== JSON.stringify(published.overrides || []) ||
+                  JSON.stringify(draft.homework || []) !== JSON.stringify(published.homework || []);
 
   return jsonResponse({
     ok: true,
@@ -60,12 +67,16 @@ export async function onRequestPut(context) {
     return errorResponse('Некорректный JSON в теле запроса.', 400);
   }
 
-  const validationError = validateSchedule(draftData);
+  const now = new Date();
+  // Ensure basic structure before validation
+  draftData = migrateScheduleData(draftData, now);
+
+  const validationError = validateSchedule(draftData, now);
   if (validationError) {
     return errorResponse(validationError, 422);
   }
 
-  draftData.updatedAt = new Date().toISOString();
+  draftData.updatedAt = now.toISOString();
 
   await env.SCHEDULE_KV.put('schedule:draft', JSON.stringify(draftData));
 

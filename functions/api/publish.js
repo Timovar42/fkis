@@ -3,7 +3,7 @@ import {
   errorResponse,
   requireAuth,
   validateSchedule,
-  INITIAL_SCHEDULE
+  migrateScheduleData
 } from './_utils.js';
 
 export async function onRequestPost(context) {
@@ -17,28 +17,26 @@ export async function onRequestPost(context) {
     return errorResponse('База данных KV не подключена.', 500);
   }
 
+  const now = new Date();
+
   // Get draft to publish
   let draftToPublish = null;
   const draftStr = await env.SCHEDULE_KV.get('schedule:draft');
   if (draftStr) {
-    try {
-      draftToPublish = JSON.parse(draftStr);
-    } catch (e) {}
+    try { draftToPublish = JSON.parse(draftStr); } catch (e) {}
   }
 
-  // If client also passed payload in request body, we can use that too
+  // If client passed payload in request body
   try {
     const body = await request.json().catch(() => null);
-    if (body && body.week && body.subjects) {
+    if (body && (body.weeks || body.template || body.week)) {
       draftToPublish = body;
     }
   } catch (e) {}
 
-  if (!draftToPublish) {
-    draftToPublish = INITIAL_SCHEDULE;
-  }
+  draftToPublish = migrateScheduleData(draftToPublish, now);
 
-  const validationError = validateSchedule(draftToPublish);
+  const validationError = validateSchedule(draftToPublish, now);
   if (validationError) {
     return errorResponse(validationError, 422);
   }
@@ -47,38 +45,33 @@ export async function onRequestPost(context) {
   let currentPublished = null;
   const currentStr = await env.SCHEDULE_KV.get('schedule:current');
   if (currentStr) {
-    try {
-      currentPublished = JSON.parse(currentStr);
-    } catch (e) {}
+    try { currentPublished = JSON.parse(currentStr); } catch (e) {}
   }
 
   const previousVersion = currentPublished?.version || 1;
   const newVersion = previousVersion + 1;
 
   draftToPublish.version = newVersion;
-  draftToPublish.updatedAt = new Date().toISOString();
+  draftToPublish.updatedAt = now.toISOString();
 
   // If there was a current published version, save it to history
   let historyList = [];
   const historyIndexStr = await env.SCHEDULE_KV.get('schedule:history');
   if (historyIndexStr) {
-    try {
-      historyList = JSON.parse(historyIndexStr);
-    } catch (e) {}
+    try { historyList = JSON.parse(historyIndexStr); } catch (e) {}
   }
 
   if (currentPublished) {
-    // Save snapshot of previous version
     await env.SCHEDULE_KV.put(
       `schedule:history:${previousVersion}`,
       JSON.stringify(currentPublished)
     );
 
-    // Add to history index
     historyList.unshift({
       version: previousVersion,
-      updatedAt: currentPublished.updatedAt || new Date().toISOString(),
-      subjectsCount: currentPublished.subjects?.length || 0
+      updatedAt: currentPublished.updatedAt || now.toISOString(),
+      subjectsCount: currentPublished.subjects?.length || 0,
+      homeworkCount: currentPublished.homework?.length || 0
     });
 
     // Keep only last 10 versions in history
@@ -92,10 +85,8 @@ export async function onRequestPost(context) {
     await env.SCHEDULE_KV.put('schedule:history', JSON.stringify(historyList));
   }
 
-  // Save new published schedule
   const publishedJson = JSON.stringify(draftToPublish);
   await env.SCHEDULE_KV.put('schedule:current', publishedJson);
-  // Synchronize draft with new published version
   await env.SCHEDULE_KV.put('schedule:draft', publishedJson);
 
   return jsonResponse({

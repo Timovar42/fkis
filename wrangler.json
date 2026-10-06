@@ -11,5 +11,8 @@
       "binding": "SCHEDULE_KV",
       "id": "153f72899426468cbc81585f2209f798"
     }
-  ]
+  ],
+  "triggers": {
+    "crons": ["5 0 * * 1"]
+  }
 }

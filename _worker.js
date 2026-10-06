@@ -5,12 +5,18 @@ import { onRequestGet as handleGetDraft, onRequestPut as handlePutDraft } from '
 import { onRequestPost as handlePostPublish } from './functions/api/publish.js';
 import { onRequestGet as handleGetHistory } from './functions/api/history.js';
 import { onRequestPost as handlePostRestore } from './functions/api/restore/[version].js';
+import { migrateScheduleData } from './functions/api/_utils.js';
 
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname;
     const method = request.method.toUpperCase();
+    const origin = request.headers.get('Origin');
+
+    const corsOrigin = (origin === 'https://timovar42.github.io' || origin?.includes('github.io'))
+      ? 'https://timovar42.github.io'
+      : (origin || '*');
 
     const makeContext = (params = {}) => ({
       request,
@@ -24,7 +30,7 @@ export default {
         return new Response(null, {
           status: 204,
           headers: {
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': corsOrigin,
             'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Cookie'
           }
@@ -74,6 +80,21 @@ export default {
         status: 500,
         headers: { 'Content-Type': 'application/json; charset=utf-8' }
       });
+    }
+  },
+
+  // Weekly cron trigger for rollover (e.g. Monday 00:05)
+  async scheduled(event, env, ctx) {
+    if (!env.SCHEDULE_KV) return;
+    try {
+      const stored = await env.SCHEDULE_KV.get('schedule:current');
+      if (stored) {
+        const schedule = JSON.parse(stored);
+        const migrated = migrateScheduleData(schedule, new Date());
+        await env.SCHEDULE_KV.put('schedule:current', JSON.stringify(migrated));
+      }
+    } catch (e) {
+      console.error('Scheduled rollover error:', e);
     }
   }
 };

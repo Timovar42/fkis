@@ -1,46 +1,98 @@
-import { jsonResponse, INITIAL_SCHEDULE } from './_utils.js';
+import {
+  jsonResponse,
+  migrateScheduleData,
+  getChisinauDateParts,
+  TIMEZONE
+} from './_utils.js';
 
 export async function onRequestGet(context) {
-  const { env } = context;
+  const { request, env } = context;
+  const origin = request.headers.get('Origin');
+
+  // Match CORS origin for https://timovar42.github.io
+  const corsOrigin = (origin === 'https://timovar42.github.io' || origin?.includes('github.io'))
+    ? 'https://timovar42.github.io'
+    : (origin || '*');
+
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': corsOrigin,
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type'
+  };
 
   try {
-    let schedule = null;
+    let rawSchedule = null;
     if (env.SCHEDULE_KV) {
       const stored = await env.SCHEDULE_KV.get('schedule:current');
       if (stored) {
-        schedule = JSON.parse(stored);
+        try {
+          rawSchedule = JSON.parse(stored);
+        } catch (e) {}
       }
     }
 
-    if (!schedule) {
-      schedule = INITIAL_SCHEDULE;
+    const now = new Date();
+    const migrated = migrateScheduleData(rawSchedule, now);
+
+    // If data changed due to migration or rollover, save back lazily
+    if (env.SCHEDULE_KV && JSON.stringify(migrated) !== JSON.stringify(rawSchedule)) {
+      context.waitUntil(
+        env.SCHEDULE_KV.put('schedule:current', JSON.stringify(migrated)).catch(() => {})
+      );
     }
 
-    // Clean up expired overrides (dates strictly before today's UTC/local date)
-    const todayStr = new Date().toISOString().slice(0, 10);
-    if (Array.isArray(schedule.overrides)) {
-      schedule.overrides = schedule.overrides.filter(ov => ov.date >= todayStr);
-    }
+    const dateParts = getChisinauDateParts(now);
 
-    return jsonResponse(schedule, 200, {
+    // Public payload: only subjects, bells, 3 weeks, overrides, homework, serverDate, tz
+    const publicPayload = {
+      version: migrated.version || 1,
+      updatedAt: migrated.updatedAt,
+      serverDate: dateParts.dateStr,
+      tz: TIMEZONE,
+      bells: migrated.bells,
+      subjects: migrated.subjects,
+      weeks: migrated.weeks,
+      overrides: migrated.overrides || [],
+      homework: migrated.homework || []
+    };
+
+    return jsonResponse(publicPayload, 200, {
       'Cache-Control': 'public, max-age=60, s-maxage=60',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type'
+      ...corsHeaders
     });
   } catch (err) {
-    return jsonResponse(INITIAL_SCHEDULE, 200, {
+    const now = new Date();
+    const migrated = migrateScheduleData(null, now);
+    const dateParts = getChisinauDateParts(now);
+
+    return jsonResponse({
+      version: 1,
+      updatedAt: now.toISOString(),
+      serverDate: dateParts.dateStr,
+      tz: TIMEZONE,
+      bells: migrated.bells,
+      subjects: migrated.subjects,
+      weeks: migrated.weeks,
+      overrides: [],
+      homework: []
+    }, 200, {
       'Cache-Control': 'public, max-age=60',
-      'Access-Control-Allow-Origin': '*'
+      ...corsHeaders
     });
   }
 }
 
-export async function onRequestOptions() {
+export async function onRequestOptions(context) {
+  const { request } = context;
+  const origin = request.headers.get('Origin');
+  const corsOrigin = (origin === 'https://timovar42.github.io' || origin?.includes('github.io'))
+    ? 'https://timovar42.github.io'
+    : (origin || '*');
+
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': corsOrigin,
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type'
     }

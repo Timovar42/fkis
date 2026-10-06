@@ -37,7 +37,7 @@ body{
 button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
 :focus-visible{outline:2px solid var(--s);outline-offset:2px}
 
-header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:4px 2px 14px}
+header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:4px 2px 10px}
 h1{font:700 1.25rem/1 var(--disp);letter-spacing:.02em;text-transform:uppercase}
 header p{font-size:.78rem;color:var(--mute);margin-top:3px}
 header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -45,6 +45,31 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   display:none;font-size:.76rem;color:var(--mute);margin-top:4px;
 }
 .offline-banner.active{display:block}
+
+/* week switcher */
+.week-bar{
+  display:flex;align-items:center;justify-content:space-between;gap:4px;
+  margin:2px 0 12px;background:color-mix(in srgb,var(--ink) 6%,transparent);
+  padding:4px;border-radius:12px;
+}
+.w-nav{
+  width:32px;height:38px;display:flex;align-items:center;justify-content:center;
+  border-radius:8px;font-weight:700;font-size:1.2rem;color:var(--mute);
+  transition:all .15s ease;flex-shrink:0;-webkit-tap-highlight-color:transparent;
+}
+.w-nav:disabled{opacity:.25;cursor:default}
+.w-nav:not(:disabled):active{background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.w-pills{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;flex:1}
+.w-pill{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:5px 2px;border-radius:8px;font-weight:600;font-size:.8rem;color:var(--mute);
+  transition:all .15s ease;line-height:1.2;-webkit-tap-highlight-color:transparent;
+}
+.w-pill .w-rng{font-size:.66rem;font-weight:400;opacity:.8;white-space:nowrap}
+.w-pill[aria-selected=true]{
+  background:var(--paper);color:var(--ink);
+  box-shadow:0 1px 4px rgba(0,0,0,.12);
+}
 
 /* hero */
 .hero{
@@ -73,33 +98,39 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
 
 /* tabs */
 .tabs{
-  display:grid;grid-template-columns:repeat(6,1fr) 1.15fr;gap:4px;
-  margin:16px 0 14px;padding:4px;border-radius:14px;
+  display:grid;grid-template-columns:repeat(6,1fr) 1.05fr 1.05fr;gap:3px;
+  margin:14px 0 14px;padding:4px 3px;border-radius:14px;
   background:color-mix(in srgb,var(--ink) 7%,transparent);
 }
 .tab{
-  border-radius:10px;padding:8px 0 7px;font-weight:600;font-size:.92rem;color:var(--mute);
-  display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;
-  transition:all .15s ease;
-  -webkit-tap-highlight-color:transparent;
+  border-radius:10px;padding:6px 1px 6px;font-weight:600;color:var(--mute);
+  display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;
+  transition:all .15s ease;-webkit-tap-highlight-color:transparent;min-width:0;
 }
+.tab-dn{font-size:.85rem;line-height:1}
+.tab-num{font-size:.68rem;font-weight:500;color:var(--mute);font-variant-numeric:tabular-nums;line-height:1}
 .tab[aria-selected=true]{
   background:var(--paper);color:var(--ink);
   box-shadow:0 1px 4px rgba(0,0,0,.15);
 }
+.tab[aria-selected=true] .tab-num{color:var(--ink);font-weight:600}
 .tab.today::after{
-  content:'';position:absolute;top:5px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--s);
+  content:'';position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:50%;background:var(--s);
 }
-.ticks{display:flex;gap:2px}
-.ticks i{width:5px;height:13px;border-radius:2px;background:var(--line);transition:background .2s}
+.tab-badge{
+  font-size:.62rem;font-weight:700;padding:1px 4px;border-radius:6px;
+  background:var(--hero-acc);color:var(--hero);line-height:1;margin-top:1px;
+}
+.ticks{display:flex;gap:2px;margin-top:1px}
+.ticks i{width:4px;height:10px;border-radius:2px;background:var(--line);transition:background .2s}
 .ticks i.on{background:var(--v)}
-.tab svg{width:17px;height:17px;margin:1px 0 1px}
+.tab svg{width:15px;height:15px;margin:1px 0}
 .v-r{--v:var(--r)}.v-g{--v:var(--g)}.v-s{--v:var(--s)}
 
 /* day */
-.dh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
 .dh h2{font:700 1.75rem/1 var(--disp);text-transform:uppercase}
-.dh span{color:var(--mute);font-size:.88rem}
+.dh span{color:var(--mute);font-size:.85rem}
 .dh button{
   margin-left:auto;border:1px solid var(--line);background:var(--paper);
   border-radius:8px;padding:5px 11px;font-size:.8rem;font-weight:500;color:var(--mute);
@@ -141,6 +172,22 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   border:1px solid color-mix(in srgb,var(--g) 35%,transparent);
   font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;
 }
+.tag-hw{
+  background:color-mix(in srgb,var(--hero-acc) 18%,var(--paper));color:var(--hero-acc);
+  border:1px solid color-mix(in srgb,var(--hero-acc) 40%,transparent);
+  font-size:.66rem;font-weight:700;padding:1px 5px;border-radius:4px;flex-shrink:0;
+}
+.card-hw-preview{
+  display:flex;align-items:center;gap:6px;margin-top:5px;
+  background:color-mix(in srgb,var(--hero-acc) 10%,var(--paper));
+  padding:3px 6px;border-radius:6px;border:1px solid color-mix(in srgb,var(--hero-acc) 25%,transparent);
+}
+.card-hw-text{
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:.78rem;color:var(--ink);
+}
+.hw-done-text{text-decoration:line-through;opacity:.6}
+
 .pl{color:var(--v);font-weight:600;font-size:.9rem;margin-top:3px}
 .th{color:var(--mute);font-size:.83rem;margin-top:1px}
 .dot{
@@ -148,6 +195,7 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   margin-left:6px;vertical-align:2px;box-shadow:0 0 0 2px var(--paper);
 }
 .has .dot{display:inline-block}
+
 .chev{
   width:8px;height:8px;border:solid var(--mute);border-width:0 2px 2px 0;
   transform:rotate(45deg);margin-top:7px;transition:transform .22s ease;
@@ -159,6 +207,33 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
 .mi{padding:0 14px 14px 86px;font-size:.88rem}
 .mi p{margin-bottom:8px;line-height:1.35}
 .mi small{color:var(--mute);display:block;margin-top:2px}
+
+/* homework box inside card */
+.hw-box{
+  background:color-mix(in srgb,var(--hero-acc) 8%,var(--paper));
+  border:1px solid color-mix(in srgb,var(--hero-acc) 30%,var(--line));
+  border-radius:8px;padding:10px;margin:6px 0 10px;
+}
+.hw-box-head{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:6px}
+.hw-box-title{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--ink)}
+.hw-due{font-size:.75rem;color:var(--mute)}
+.hw-due.due-urgent{color:var(--s);font-weight:700}
+.hw-box-body{font-size:.88rem;line-height:1.45;color:var(--ink);white-space:pre-wrap;word-break:break-word}
+.hw-box-foot{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  margin-top:8px;padding-top:8px;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent);
+}
+.hw-done-label{
+  display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;
+  cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+.hw-done-label input{width:16px;height:16px;accent-color:var(--g);cursor:pointer}
+.hw-link-btn{
+  font-size:.76rem;font-weight:600;color:var(--g);text-decoration:none;
+  border:1px solid color-mix(in srgb,var(--g) 35%,transparent);border-radius:6px;
+  padding:3px 8px;background:var(--paper);display:inline-flex;align-items:center;gap:4px;
+}
+.hw-link-btn:active{background:color-mix(in srgb,var(--g) 10%,var(--paper))}
 
 /* notes UI */
 .note-box{
@@ -196,7 +271,7 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   margin-bottom:10px;color:var(--mute);font-size:.85rem;text-align:center;
 }
 
-/* week */
+/* week view */
 .wk{display:grid;grid-template-columns:24px repeat(6,1fr);gap:4px}
 .wk .h{text-align:center;font-weight:600;font-size:.8rem;color:var(--mute);padding-bottom:2px}
 .wk .h.today{color:var(--s);font-weight:700}
@@ -205,13 +280,34 @@ header time{font-size:.85rem;color:var(--mute);white-space:nowrap;font-variant-n
   min-height:66px;border:0;border-left:3px solid var(--v);border-radius:6px;
   background:color-mix(in srgb,var(--v) 15%,var(--paper));
   font:600 .68rem/1.2 Onest;text-align:left;padding:5px 4px;
-  overflow:hidden;word-break:break-word;hyphens:auto;
+  overflow:hidden;word-break:break-word;hyphens:auto;position:relative;
   -webkit-tap-highlight-color:transparent;
 }
 .c.e{background:none;border:1px dashed var(--line);cursor:default}
 .c.cur{outline:2px solid var(--ink);outline-offset:1px}
+.c.has-hw::after{
+  content:'';position:absolute;top:4px;right:4px;width:6px;height:6px;
+  border-radius:50%;background:var(--hero-acc);
+}
 .leg{display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:.8rem;color:var(--mute)}
 .leg i{display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--v);margin-right:5px;vertical-align:-1px}
+
+/* all homework tab view */
+.hw-view-item{
+  background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--v);
+  border-radius:10px;padding:12px 14px;margin-bottom:10px;position:relative;
+}
+.hw-view-item.is-done{opacity:.65}
+.hw-view-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.hw-view-title{font-weight:600;font-size:1rem;line-height:1.25}
+.hw-view-date{font-size:.8rem;color:var(--mute);margin-top:2px}
+.hw-jump-btn{
+  font-size:.76rem;font-weight:600;color:var(--mute);border:1px solid var(--line);
+  border-radius:6px;padding:3px 9px;background:var(--bg);cursor:pointer;flex-shrink:0;
+  transition:all .15s ease;
+}
+.hw-jump-btn:active{background:var(--paper);color:var(--ink)}
+
 footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line-height:1.6}
 .toast{
   position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translate(-50%,20px);
@@ -225,9 +321,11 @@ footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line
   .mi{padding-left:12px}
   .tm b{font-size:1.65rem}
   .card-h{grid-template-columns:54px 1fr 14px;gap:10px;padding:12px 10px}
-  .tab{font-size:.88rem;padding:7px 0}
-  .ticks i{width:4px;height:11px}
+  .tab-dn{font-size:.82rem}
+  .ticks i{width:3px;height:9px}
   .cd b{font-size:3rem}
+  .w-pill{font-size:.76rem}
+  .w-pill .w-rng{font-size:.62rem}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -242,6 +340,18 @@ footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line
     </div>
     <time id="dt"></time>
   </header>
+
+  <!-- Week Switcher -->
+  <div class="week-bar">
+    <button class="w-nav" id="w-prev" aria-label="Предыдущая неделя">‹</button>
+    <div class="w-pills" id="w-pills">
+      <button class="w-pill" data-w="0">Прошлая<span class="w-rng" id="wrng-0">...</span></button>
+      <button class="w-pill" data-w="1" aria-selected="true">Эта<span class="w-rng" id="wrng-1">...</span></button>
+      <button class="w-pill" data-w="2">Следующая<span class="w-rng" id="wrng-2">...</span></button>
+    </div>
+    <button class="w-nav" id="w-next" aria-label="Следующая неделя">›</button>
+  </div>
+
   <section class="hero" id="hero" role="button" tabindex="0" aria-live="polite"></section>
   <nav class="tabs" id="tabs" role="tablist" aria-label="День недели"></nav>
   <main id="view"></main>
@@ -252,9 +362,9 @@ footer{margin-top:32px;font-size:.76rem;color:var(--mute);text-align:center;line
 <div class="toast" id="toast"></div>
 
 <script>
-/* Default built-in fallback */
+/* Built-in fallback */
 const DEFAULT_SCHEDULE = {
-  version: 1,
+  version: 2,
   bells: [
     ['08:00', '09:30'],
     ['09:40', '11:10'],
@@ -277,7 +387,7 @@ const DEFAULT_SCHEDULE = {
     { id: 's_ir', name: 'История России', short: 'История России', type: '', teacher: 'Чащина Светлана Фёдоровна', place: 'к2 · 315', venue: 'r' },
     { id: 's_ifk', name: 'История физической культуры', short: 'История ФК', type: '', teacher: 'Мыцыков Николай Владимирович', place: 'к2 · 204', venue: 'r' }
   ],
-  week: [
+  template: [
     [null, 's_eng', 's_afv_lk', 's_fks_lk'],
     [null, 's_foot', 's_lang', null],
     ['s_gym', 's_bask', 's_fks_pr', null],
@@ -285,34 +395,144 @@ const DEFAULT_SCHEDULE = {
     ['s_ir', 's_ir', 's_afv_pr', null],
     ['s_ifk', 's_ifk', 's_eng', 's_toa']
   ],
-  overrides: []
+  weeks: {},
+  overrides: [],
+  homework: []
 };
 
 let T = DEFAULT_SCHEDULE.bells;
-let D = [
-  [null, null, null, null],
-  [null, null, null, null],
-  [null, null, null, null],
-  [null, null, null, null],
-  [null, null, null, null],
-  [null, null, null, null]
-];
-let overrides = [];
 let subjectsMap = {};
+let scheduleWeeks = {};
+let defaultTemplate = DEFAULT_SCHEDULE.template;
+let overrides = [];
+let homework = [];
 
 const DN = ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 const DS = ['Пн','Вт','Ср','Чт','Пт','Сб'];
 const ACC = ['в понедельник','во вторник','в среду','в четверг','в пятницу','в субботу'];
+const MONTHS_ROD = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
 
 const $ = s => document.querySelector(s);
 const pad = n => String(n).padStart(2,'0');
 const M = s => { const [a,b] = s.split(':'); return +a*60 + +b; };
-const nowM = () => { const n = new Date(); return n.getHours()*60 + n.getMinutes(); };
-const today = (new Date().getDay() + 6) % 7; // Mon=0 … Sun=6
-let sel = today < 6 ? today : 0;
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+/* Timezone & Date helpers (Europe/Chisinau) */
+function getChisinauDateParts(d = new Date()) {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Europe/Chisinau',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour12: false
+    });
+    const parts = formatter.formatToParts(d);
+    const p = {};
+    parts.forEach(pt => p[pt.type] = pt.value);
+    return {
+      year: parseInt(p.year, 10),
+      month: parseInt(p.month, 10),
+      day: parseInt(p.day, 10),
+      dateStr: `${p.year}-${p.month}-${p.day}`
+    };
+  } catch (e) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return { year: y, month: d.getMonth() + 1, day: d.getDate(), dateStr: `${y}-${m}-${day}` };
+  }
+}
+
+function addDays(dateStr, days) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d + days, 12, 0, 0));
+  const ry = dt.getUTCFullYear();
+  const rm = String(dt.getUTCMonth() + 1).padStart(2, '0');
+  const rd = String(dt.getUTCDate()).padStart(2, '0');
+  return `${ry}-${rm}-${rd}`;
+}
+
+function getMonday(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const dow = (dt.getUTCDay() + 6) % 7; // Mon=0..Sun=6
+  return addDays(dateStr, -dow);
+}
+
+function computeThreeMondays() {
+  const todayStr = getChisinauDateParts().dateStr;
+  const curMon = getMonday(todayStr);
+  return [addDays(curMon, -7), curMon, addDays(curMon, 7)];
+}
+
+function formatRange(monStr) {
+  const satStr = addDays(monStr, 5);
+  const [, m1, d1] = monStr.split('-').map(Number);
+  const [, m2, d2] = satStr.split('-').map(Number);
+  if (m1 === m2) {
+    return `${d1}–${d2} ${MONTHS_ROD[m1 - 1]}`;
+  }
+  return `${d1} ${MONTHS_ROD[m1 - 1]} – ${d2} ${MONTHS_ROD[m2 - 1]}`;
+}
+
+function formatDue(dueStr) {
+  if (!dueStr) return '';
+  const [y, m, d] = dueStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  const dow = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][dt.getUTCDay()];
+  return `${dow}, ${d} ${MONTHS_ROD[m - 1]}`;
+}
+
+function getDaysRemaining(targetDateStr) {
+  const todayStr = getChisinauDateParts().dateStr;
+  const [y1, m1, d1] = todayStr.split('-').map(Number);
+  const [y2, m2, d2] = targetDateStr.split('-').map(Number);
+  const t1 = Date.UTC(y1, m1 - 1, d1);
+  const t2 = Date.UTC(y2, m2 - 1, d2);
+  return Math.round((t2 - t1) / 86400000);
+}
+
+/* Time & Today */
+const nowM = () => {
+  const now = new Date();
+  try {
+    const formatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Europe/Chisinau',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    const [h, m] = formatter.format(now).split(':').map(Number);
+    return h * 60 + m;
+  } catch (e) {
+    return now.getHours() * 60 + now.getMinutes();
+  }
+};
+
+const getTodayDow = () => {
+  const todayStr = getChisinauDateParts().dateStr;
+  const [y, m, d] = todayStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+  return (dt.getUTCDay() + 6) % 7; // Mon=0..Sun=6
+};
+
+const today = getTodayDow();
+let selectedWeekIndex = 1; // 0=past, 1=current, 2=next
+let weekMondays = computeThreeMondays();
+let sel = today < 6 ? today : 0; // 0..5, 'w', or 'hw'
 let dir = '';
 
-// Local client-side notes
+/* Local client-side notes & homework done status */
 let notes = {};
 try {
   notes = JSON.parse(localStorage.getItem('afk-notes-v2') || localStorage.getItem('afk-notes') || '{}');
@@ -321,48 +541,53 @@ const saveNotes = () => {
   try { localStorage.setItem('afk-notes-v2', JSON.stringify(notes)); } catch(e) {}
 };
 
+let hwDone = {};
+try {
+  hwDone = JSON.parse(localStorage.getItem('afk-hw-done') || '{}');
+} catch(e) {}
+const saveHwDone = () => {
+  try { localStorage.setItem('afk-hw-done', JSON.stringify(hwDone)); } catch(e) {}
+};
+
 const noteKey = (d, i) => `${d}_${i}`;
 
-function getLocalDateStr(dateObj = new Date()) {
-  const y = dateObj.getFullYear();
-  const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const d = String(dateObj.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
+function getActiveMonday() {
+  return weekMondays[selectedWeekIndex] || weekMondays[1];
 }
 
-function getDateForWeekDay(dayIndex) {
-  const now = new Date();
-  const currentDay = (now.getDay() + 6) % 7;
-  const diff = dayIndex - currentDay;
-  const target = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
-  return getLocalDateStr(target);
+function getDateForSlot(dayIndex) {
+  return addDays(getActiveMonday(), dayIndex);
 }
 
-function getOverride(dayIndex, slotIndex) {
-  const dateStr = getDateForWeekDay(dayIndex);
-  return overrides.find(ov => ov.date === dateStr && ov.slot === slotIndex) || null;
-}
+function getSlotData(dayIndex, slotIndex, specificMonday = null) {
+  const mon = specificMonday || getActiveMonday();
+  const dateStr = addDays(mon, dayIndex);
+  const weekObj = scheduleWeeks[mon];
+  let subId = null;
+  if (weekObj?.days?.[dayIndex]) {
+    subId = weekObj.days[dayIndex][slotIndex];
+  } else if (defaultTemplate?.[dayIndex]) {
+    subId = defaultTemplate[dayIndex][slotIndex];
+  }
+  const base = subId ? (subjectsMap[subId] || null) : null;
+  const ov = overrides.find(o => o.date === dateStr && o.slot === slotIndex) || null;
 
-function getSlotData(dayIndex, slotIndex) {
-  const base = D[dayIndex]?.[slotIndex] || null;
-  const ov = getOverride(dayIndex, slotIndex);
-  if (!ov) return { subject: base, override: null };
-
+  if (!ov) return { subject: base, override: null, dateStr };
   if (ov.action === 'cancel') {
-    return { subject: base, override: ov, canceled: true };
+    return { subject: base, override: ov, canceled: true, dateStr };
   } else if (ov.action === 'replace') {
     const sub = subjectsMap[ov.subjectId] || base;
-    return { subject: sub, override: ov, replaced: true };
+    return { subject: sub, override: ov, replaced: true, dateStr };
   }
-  return { subject: base, override: ov };
+  return { subject: base, override: ov, dateStr };
 }
 
-const lessons = d => {
+const lessons = (d, specificMonday = null) => {
   const list = [];
   for (let i = 0; i < 4; i++) {
-    const data = getSlotData(d, i);
+    const data = getSlotData(d, i, specificMonday);
     if (data.subject) {
-      list.push({ ...data.subject, i, canceled: data.canceled, replaced: data.replaced, override: data.override });
+      list.push({ ...data.subject, i, canceled: data.canceled, replaced: data.replaced, override: data.override, dateStr: data.dateStr });
     }
   }
   return list;
@@ -375,14 +600,20 @@ const tshort = p => p ? p.split(' / ').map(x => {
 
 const full = w => (w || '').replace(/^к(\d) · (\d.*)$/,'Корпус $1, ауд. $2').replace(/^к(\d) · /,'Корпус $1, ');
 
-$('#dt').textContent = new Intl.DateTimeFormat('ru', { weekday: 'short', day: 'numeric', month: 'long' }).format(new Date());
+try {
+  $('#dt').textContent = new Intl.DateTimeFormat('ru', { timeZone: 'Europe/Chisinau', weekday: 'short', day: 'numeric', month: 'long' }).format(new Date());
+} catch(e) {
+  $('#dt').textContent = new Intl.DateTimeFormat('ru', { weekday: 'short', day: 'numeric', month: 'long' }).format(new Date());
+}
 
-/* ---------- hero ---------- */
+/* ---------- HERO (Always Real-Time for Today) ---------- */
 let heroState = '';
 function hero() {
   const nm = nowM();
-  const Ls = today < 6 ? lessons(today) : [];
-  // Active/non-canceled lessons for time calculation
+  const curMon = weekMondays[1]; // Real current week Monday
+  const todayDow = getTodayDow();
+  const Ls = todayDow < 6 ? lessons(todayDow, curMon) : [];
+
   const cur = Ls.find(l => nm >= M(T[l.i][0]) && nm < M(T[l.i][1]));
   const nxt = Ls.find(l => M(T[l.i][0]) > nm && !l.canceled);
 
@@ -391,7 +622,6 @@ function hero() {
     if (l.canceled) tag = ' <span class="tag-cancel">Отменена</span>';
     else if (l.replaced) tag = ' <span class="tag-replace">Замена</span>';
     else if (l.type) tag = ` (${l.type})`;
-
     return `<div><div class="h-nm">${l.name}${tag}</div><div class="h-pl">${l.place || '—'}</div></div>`;
   };
 
@@ -415,8 +645,11 @@ function hero() {
     heroState = 'done';
     let n = null;
     for (let k = 1; k <= 7 && !n; k++) {
-      const d = (today + k) % 7;
-      if (d < 6 && lessons(d).length) n = { d, k, l: lessons(d).find(x => !x.canceled) || lessons(d)[0] };
+      const d = (todayDow + k) % 7;
+      if (d < 6) {
+        const dLessons = lessons(d, (todayDow + k >= 7) ? weekMondays[2] : curMon);
+        if (dLessons.length) n = { d, k, l: dLessons.find(x => !x.canceled) || dLessons[0] };
+      }
     }
     lbl = Ls.length ? 'На сегодня всё' : 'Сегодня пар нет';
     main = `<div><div class="h-nm">${Ls.length ? 'Можно выдыхать 🎉' : 'Выходной'}</div>${n ? `<div class="then" style="margin-top:6px">${n.k == 1 ? 'Завтра' : ACC[n.d][0].toUpperCase() + ACC[n.d].slice(1)} в ${T[n.l.i][0]}: ${n.l.short || n.l.name}, ${n.l.place || ''}</div>` : ''}</div>`;
@@ -428,47 +661,158 @@ function hero() {
 
 $('#hero').onclick = e => {
   if (heroState === 'done') return burst(e.clientX, e.clientY);
-  if (today < 6 && sel !== today) { dir = today < sel ? 'l' : 'r'; sel = today; render(); }
+  // Tap returns user to current week and current day
+  const todayDow = getTodayDow();
+  if (selectedWeekIndex !== 1 || (todayDow < 6 && sel !== todayDow)) {
+    selectedWeekIndex = 1;
+    sel = todayDow < 6 ? todayDow : 0;
+    dir = 'l';
+    render();
+  }
 };
 $('#hero').onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#hero').click(); } };
 
-/* ---------- tabs ---------- */
+/* ---------- Week Switcher UI ---------- */
+function updateWeekSwitcher() {
+  weekMondays = computeThreeMondays();
+  $('#wrng-0').textContent = formatRange(weekMondays[0]);
+  $('#wrng-1').textContent = formatRange(weekMondays[1]);
+  $('#wrng-2').textContent = formatRange(weekMondays[2]);
+
+  document.querySelectorAll('.w-pill').forEach(p => {
+    const idx = +p.dataset.w;
+    p.setAttribute('aria-selected', idx === selectedWeekIndex);
+  });
+  $('#w-prev').disabled = selectedWeekIndex <= 0;
+  $('#w-next').disabled = selectedWeekIndex >= 2;
+}
+
+$('#w-prev').onclick = () => {
+  if (selectedWeekIndex > 0) {
+    selectedWeekIndex--;
+    dir = 'l';
+    render();
+  }
+};
+$('#w-next').onclick = () => {
+  if (selectedWeekIndex < 2) {
+    selectedWeekIndex++;
+    dir = 'r';
+    render();
+  }
+};
+$('#w-pills').onclick = e => {
+  const pill = e.target.closest('.w-pill');
+  if (!pill) return;
+  const idx = +pill.dataset.w;
+  if (idx === selectedWeekIndex) return;
+  dir = idx > selectedWeekIndex ? 'r' : 'l';
+  selectedWeekIndex = idx;
+  render();
+};
+
+/* ---------- Tabs UI ---------- */
 function tabs() {
-  const wk = '<svg viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="1" width="7" height="7" rx="2"/><rect x="10" y="1" width="7" height="7" rx="2"/><rect x="1" y="10" width="7" height="7" rx="2"/><rect x="10" y="10" width="7" height="7" rx="2"/></svg>';
-  $('#tabs').innerHTML = DS.map((n, d) => `<button class="tab${d === today ? ' today' : ''}" role="tab" data-d="${d}" aria-selected="${sel === d}" aria-label="${DN[d]}">${n}<span class="ticks">${[0,1,2,3].map(i => {
-    const s = getSlotData(d, i);
-    return `<i class="${s.subject ? 'on v-' + (s.subject.venue || 'r') : ''}"></i>`;
-  }).join('')}</span></button>`).join('')
-   + `<button class="tab" role="tab" data-d="w" aria-selected="${sel === 'w'}" aria-label="Вся неделя">${wk}<span style="font-size:.7rem;font-weight:600">неделя</span></button>`;
+  updateWeekSwitcher();
+  const activeMon = getActiveMonday();
+  const isCurWeek = (selectedWeekIndex === 1);
+  const wkSvg = '<svg viewBox="0 0 18 18" fill="currentColor"><rect x="1" y="1" width="7" height="7" rx="2"/><rect x="10" y="1" width="7" height="7" rx="2"/><rect x="1" y="10" width="7" height="7" rx="2"/><rect x="10" y="10" width="7" height="7" rx="2"/></svg>';
+
+  // Pending HW count
+  const pendingHwCount = homework.filter(h => !hwDone[h.id]).length;
+
+  let html = DS.map((n, d) => {
+    const dateStr = addDays(activeMon, d);
+    const dayNum = parseInt(dateStr.split('-')[2], 10);
+    const isTodayTab = isCurWeek && (d === today);
+    return `<button class="tab${isTodayTab ? ' today' : ''}" role="tab" data-d="${d}" aria-selected="${sel === d}" aria-label="${DN[d]} ${dayNum}">
+      <span class="tab-dn">${n}</span>
+      <span class="tab-num">${dayNum}</span>
+      <span class="ticks">${[0,1,2,3].map(i => {
+        const s = getSlotData(d, i);
+        return `<i class="${s.subject ? 'on v-' + (s.subject.venue || 'r') : ''}"></i>`;
+      }).join('')}</span>
+    </button>`;
+  }).join('');
+
+  // Tab: Сетка (вся неделя)
+  html += `<button class="tab" role="tab" data-d="w" aria-selected="${sel === 'w'}" aria-label="Вся неделя">
+    ${wkSvg}<span style="font-size:.68rem;font-weight:600;line-height:1">сетка</span>
+  </button>`;
+
+  // Tab: ДЗ (список заданий)
+  html += `<button class="tab" role="tab" data-d="hw" aria-selected="${sel === 'hw'}" aria-label="Домашние задания">
+    <span style="font-size:.85rem;font-weight:700;line-height:1">ДЗ</span>
+    ${pendingHwCount > 0 ? `<span class="tab-badge">${pendingHwCount}</span>` : `<span style="font-size:.66rem;font-weight:500;color:var(--mute);line-height:1">все</span>`}
+  </button>`;
+
+  $('#tabs').innerHTML = html;
 }
 
 $('#tabs').onclick = e => {
   const b = e.target.closest('.tab'); if (!b) return;
-  const d = b.dataset.d === 'w' ? 'w' : +b.dataset.d; if (d === sel) return;
-  dir = d === 'w' || (sel !== 'w' && d > sel) ? 'r' : 'l'; sel = d; render();
+  const dVal = b.dataset.d;
+  const d = (dVal === 'w' || dVal === 'hw') ? dVal : +dVal;
+  if (d === sel) return;
+  dir = 'r';
+  sel = d;
+  render();
 };
 
-/* ---------- day view ---------- */
+/* ---------- Day View ---------- */
 function dayView(d) {
+  const activeMon = getActiveMonday();
+  const dateStr = addDays(activeMon, d);
   const Ls = lessons(d);
-  if (!Ls.length) return `<div class="dh"><h2>${DN[d]}</h2><span>Пар нет</span></div>`;
+  const isPast = selectedWeekIndex === 0;
+
+  // HW for this day
+  const dayHw = homework.filter(h => h.date === dateStr);
+  const dayHwCount = dayHw.length;
+
+  if (!Ls.length) {
+    return `<div class="dh">
+      <h2>${DN[d]}</h2>
+      <span>${isPast ? 'Прошлая неделя · ' : ''}Пар нет</span>
+    </div>`;
+  }
+
   const first = Ls[0].i, last = Ls[Ls.length - 1].i;
   const hints = [];
-  if (first > 0) hints.push(`Первой пары нет, приходить к <b>${T[first][0]}</b>`);
-  if (Ls.some(l => l.venue === 's')) hints.push(`<b>Стадион на улице:</b> форма и одежда по погоде`);
-  else if (Ls.some(l => l.venue === 'g')) hints.push(`<b>Нужна спортивная форма</b>`);
-  if (!hints.length) hints.push(d === 5 ? 'Суббота, финишная прямая' : Ls.length === 4 ? 'Четыре пары подряд, возьми перекус' : `Заканчиваем в ${T[last][1]}`);
+  if (isPast) {
+    hints.push('Прошлая неделя (архив)');
+  } else {
+    if (first > 0) hints.push(`Первой пары нет, приходить к <b>${T[first][0]}</b>`);
+    if (Ls.some(l => l.venue === 's')) hints.push(`<b>Стадион на улице:</b> форма и одежда по погоде`);
+    else if (Ls.some(l => l.venue === 'g')) hints.push(`<b>Нужна спортивная форма</b>`);
+    if (!hints.length) hints.push(d === 5 ? 'Суббота, финишная прямая' : Ls.length === 4 ? 'Четыре пары подряд, возьми перекус' : `Заканчиваем в ${T[last][1]}`);
+  }
 
-  let h = `<div class="dh"><h2>${DN[d]}</h2><span>${Ls.length} ${Ls.length > 1 ? 'пары' : 'пара'} · ${T[first][0]}–${T[last][1]}</span><button id="cp">Скопировать</button></div><p class="hint">${hints.slice(0,2).join('<br>')}</p>`;
+  const hwHintStr = dayHwCount > 0 ? ` · ДЗ: ${dayHwCount}` : '';
+  const pastPrefix = isPast ? 'Прошлая неделя · ' : '';
+
+  let h = `<div class="dh">
+    <h2>${DN[d]}</h2>
+    <span>${pastPrefix}${Ls.length} ${Ls.length > 1 ? 'пары' : 'пара'} · ${T[first][0]}–${T[last][1]}${hwHintStr}</span>
+    <button id="cp">Скопировать</button>
+  </div>
+  <p class="hint">${hints.slice(0,2).join('<br>')}</p>`;
 
   for (let i = first; i <= last; i++) {
     const slot = getSlotData(d, i);
     const l = slot.subject;
-    if (!l) { h += `<div class="win">Окно ${T[i][0]}–${T[i][1]}</div>`; continue; }
+    if (!l) {
+      h += `<div class="win">Окно ${T[i][0]}–${T[i][1]}</div>`;
+      continue;
+    }
 
     const k = noteKey(d, i);
     const hasNote = !!notes[k];
     const noteVal = notes[k] || '';
+
+    // Slot HW
+    const slotHw = homework.find(hw => hw.date === dateStr && hw.slot === i) || null;
+    const isHwDone = slotHw ? !!hwDone[slotHw.id] : false;
 
     let tagHtml = '';
     if (slot.canceled) {
@@ -479,7 +823,46 @@ function dayView(d) {
       tagHtml = `<span class="tag">${l.type}</span>`;
     }
 
-    const noteReason = slot.override?.note ? `<div style="font-size:.78rem;color:var(--s);margin-top:2px;">Причина: ${slot.override.note}</div>` : '';
+    const noteReason = slot.override?.note ? `<div style="font-size:.78rem;color:var(--s);margin-top:2px;">Причина: ${escapeHtml(slot.override.note)}</div>` : '';
+
+    // Collapsed HW preview
+    let hwPreviewHtml = '';
+    if (slotHw) {
+      const firstLine = slotHw.text.split('\n')[0].slice(0, 70);
+      hwPreviewHtml = `<div class="card-hw-preview">
+        <span class="tag-hw">ДЗ</span>
+        <span class="card-hw-text ${isHwDone ? 'hw-done-text' : ''}">${escapeHtml(firstLine)}</span>
+      </div>`;
+    }
+
+    // Expanded HW box
+    let hwBoxHtml = '';
+    if (slotHw) {
+      let dueHtml = '';
+      if (slotHw.due) {
+        const daysLeft = getDaysRemaining(slotHw.due);
+        const isUrgent = daysLeft >= 0 && daysLeft <= 2;
+        dueHtml = `<span class="hw-due ${isUrgent ? 'due-urgent' : ''}">сдать до ${formatDue(slotHw.due)}${isUrgent ? ' ⚠️' : ''}</span>`;
+      }
+      const linkHtml = slotHw.link
+        ? `<a href="${encodeURI(slotHw.link)}" target="_blank" rel="noopener noreferrer" class="hw-link-btn" onclick="event.stopPropagation()">Материалы ↗</a>`
+        : '';
+
+      hwBoxHtml = `<div class="hw-box" onclick="event.stopPropagation()">
+        <div class="hw-box-head">
+          <span class="hw-box-title">📌 Домашнее задание</span>
+          ${dueHtml}
+        </div>
+        <div class="hw-box-body ${isHwDone ? 'hw-done-text' : ''}" id="hw-body-${slotHw.id}">${escapeHtml(slotHw.text)}</div>
+        <div class="hw-box-foot">
+          <label class="hw-done-label">
+            <input type="checkbox" class="hw-done-check" data-hwid="${slotHw.id}" ${isHwDone ? 'checked' : ''}>
+            <span>Сделано</span>
+          </label>
+          ${linkHtml}
+        </div>
+      </div>`;
+    }
 
     h += `<article class="card v-${l.venue || 'r'}${hasNote ? ' has' : ''}${slot.canceled ? ' canceled' : ''}" data-d="${d}" data-i="${i}" data-k="${k}">
       <button class="card-h" aria-expanded="false">
@@ -489,17 +872,19 @@ function dayView(d) {
           <div class="pl">${l.place || '—'}</div>
           <div class="th">${tshort(l.teacher)}</div>
           ${noteReason}
+          ${hwPreviewHtml}
         </div>
         <span class="chev"></span>
       </button>
       <div class="more"><div><div class="mi">
         <p>${full(l.place)}<small>${l.teacher || 'Преподаватель не указан'} · ${i+1} пара (${T[i][0]}–${T[i][1]})</small></p>
+        ${hwBoxHtml}
         <div class="note-box">
           <div class="note-head">
             <span class="note-title">📝 Заметка к паре</span>
             <span class="note-state">${hasNote ? 'сохранено' : 'не заполнено'}</span>
           </div>
-          <textarea data-k="${k}" placeholder="ДЗ, тема, дедлайн, что принести…" aria-label="Заметка к паре" autocorrect="on" autocapitalize="sentences">${noteVal}</textarea>
+          <textarea data-k="${k}" placeholder="Личная заметка, тема, что взять с собой…" aria-label="Заметка к паре" autocorrect="on" autocapitalize="sentences">${escapeHtml(noteVal)}</textarea>
           <div class="note-footer">
             <span class="note-hint">Только у вас в браузере</span>
             <button class="note-btn del" data-del="${k}" ${hasNote ? '' : 'style="display:none"'}>Очистить</button>
@@ -512,18 +897,27 @@ function dayView(d) {
   return h;
 }
 
-/* ---------- week view ---------- */
+/* ---------- Week View ---------- */
 function weekView() {
-  let h = '<div class="wk"><span></span>' + DS.map((n, d) => `<span class="h${d === today ? ' today' : ''}">${n}</span>`).join('');
+  const activeMon = getActiveMonday();
+  const isCurWeek = (selectedWeekIndex === 1);
+  let h = '<div class="wk"><span></span>' + DS.map((n, d) => {
+    const isTodayCol = isCurWeek && (d === today);
+    return `<span class="h${isTodayCol ? ' today' : ''}">${n}</span>`;
+  }).join('');
+
   for (let i = 0; i < 4; i++) {
     h += `<span class="rl">${i+1}</span>`;
     for (let d = 0; d < 6; d++) {
       const slot = getSlotData(d, i);
       const l = slot.subject;
       const hasN = !!notes[noteKey(d, i)];
+      const dateStr = addDays(activeMon, d);
+      const hasHw = homework.some(hw => hw.date === dateStr && hw.slot === i);
+
       if (l) {
         const titleStr = slot.canceled ? `[Отменена] ${l.name}` : (slot.replaced ? `[Замена] ${l.name}` : l.name);
-        h += `<button class="c v-${l.venue || 'r'}${hasN ? ' cur' : ''}${slot.canceled ? ' canceled' : ''}" data-d="${d}" data-i="${i}" aria-label="${DN[d]}, ${i+1} пара: ${titleStr}">${l.short || l.name}</button>`;
+        h += `<button class="c v-${l.venue || 'r'}${hasN ? ' cur' : ''}${slot.canceled ? ' canceled' : ''}${hasHw ? ' has-hw' : ''}" data-d="${d}" data-i="${i}" aria-label="${DN[d]}, ${i+1} пара: ${titleStr}">${l.short || l.name}</button>`;
       } else {
         h += `<span class="c e"></span>`;
       }
@@ -532,19 +926,134 @@ function weekView() {
   return h + `</div><div class="leg"><span class="v-r"><i></i>аудитория</span><span class="v-g"><i></i>спортзал</span><span class="v-s"><i></i>стадион</span></div>`;
 }
 
+/* ---------- All Homework View (Tab 'hw') ---------- */
+function homeworkView() {
+  if (!homework.length) {
+    return `<div class="dh"><h2>Домашние задания</h2><span>0 заданий</span></div>
+    <div style="background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:32px 16px;text-align:center;margin-top:12px;color:var(--mute);">
+      <div style="font-size:2rem;margin-bottom:8px;">🎉</div>
+      <p style="font-weight:600;font-size:1rem;color:var(--ink);">Заданий пока нет</p>
+      <p style="font-size:.82rem;margin-top:4px;">Когда староста добавит ДЗ, оно появится здесь</p>
+    </div>`;
+  }
+
+  // Sort: uncompleted first, then completed
+  // Inside uncompleted: by due date, then by pair date
+  const sorted = [...homework].sort((a, b) => {
+    const doneA = !!hwDone[a.id];
+    const doneB = !!hwDone[b.id];
+    if (doneA !== doneB) return doneA ? 1 : -1;
+    const dateA = a.due || a.date;
+    const dateB = b.due || b.date;
+    if (dateA !== dateB) return dateA.localeCompare(dateB);
+    return a.slot - b.slot;
+  });
+
+  const pendingCount = sorted.filter(h => !hwDone[h.id]).length;
+
+  let h = `<div class="dh">
+    <h2>Домашние задания</h2>
+    <span>${pendingCount ? `${pendingCount} к сдаче` : 'Все выполнены 🎉'}</span>
+  </div>
+  <p class="hint">Задания из расписания на 3 недели. Отмечайте выполненные — они сохраняются на вашем устройстве.</p>`;
+
+  sorted.forEach(hw => {
+    const isDone = !!hwDone[hw.id];
+    const subj = subjectsMap[hw.subjectId] || null;
+    const subjName = subj ? (subj.name + (subj.type ? ` (${subj.type})` : '')) : 'Пара';
+    const venue = subj?.venue || 'r';
+
+    // Pair date info
+    const [y, m, d] = hw.date.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    const dow = (dt.getUTCDay() + 6) % 7;
+    const dayName = DN[dow] || '';
+    const timeStr = T[hw.slot] ? `${T[hw.slot][0]}–${T[hw.slot][1]}` : '';
+
+    let dueBadge = '';
+    if (hw.due) {
+      const daysLeft = getDaysRemaining(hw.due);
+      const isUrgent = daysLeft >= 0 && daysLeft <= 2;
+      dueBadge = `<span class="hw-due ${isUrgent ? 'due-urgent' : ''}">сдать до ${formatDue(hw.due)}${isUrgent ? ' ⚠️' : ''}</span>`;
+    }
+
+    const linkHtml = hw.link
+      ? `<a href="${encodeURI(hw.link)}" target="_blank" rel="noopener noreferrer" class="hw-link-btn" onclick="event.stopPropagation()">Материалы ↗</a>`
+      : '';
+
+    h += `<article class="hw-view-item v-${venue}${isDone ? ' is-done' : ''}" data-hwid="${hw.id}">
+      <div class="hw-view-top">
+        <div>
+          <div class="hw-view-title">${escapeHtml(subjName)}</div>
+          <div class="hw-view-date">${dayName}, ${d} ${MONTHS_ROD[m - 1]} · ${hw.slot + 1} пара (${timeStr})</div>
+        </div>
+        <button class="hw-jump-btn" data-jump-date="${hw.date}" data-jump-slot="${hw.slot}">К паре →</button>
+      </div>
+      <div class="hw-card-body ${isDone ? 'hw-done-text' : ''}" style="margin:8px 0;" id="hw-view-body-${hw.id}">${escapeHtml(hw.text)}</div>
+      <div class="hw-card-foot" style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--line);">
+        <label class="hw-done-label">
+          <input type="checkbox" class="hw-done-check" data-hwid="${hw.id}" ${isDone ? 'checked' : ''}>
+          <span>Сделано</span>
+        </label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${dueBadge}
+          ${linkHtml}
+        </div>
+      </div>
+    </article>`;
+  });
+
+  return h;
+}
+
 function render() {
   tabs();
   const v = $('#view');
   v.className = dir ? 'in-' + dir : '';
   dir = '';
-  v.innerHTML = sel === 'w' ? weekView() : dayView(sel);
+  if (sel === 'w') {
+    v.innerHTML = weekView();
+  } else if (sel === 'hw') {
+    v.innerHTML = homeworkView();
+  } else {
+    v.innerHTML = dayView(sel);
+  }
   tick();
 }
 
+/* Event Delegation for View */
 $('#view').addEventListener('click', e => {
+  // Click on week grid item
   const c = e.target.closest('.c[data-d]');
   if (c) { sel = +c.dataset.d; dir = 'r'; render(); return; }
 
+  // Jump from HW tab to schedule slot
+  const jumpBtn = e.target.closest('[data-jump-date]');
+  if (jumpBtn) {
+    const jumpDate = jumpBtn.dataset.jumpDate;
+    const jumpSlot = +jumpBtn.dataset.jumpSlot;
+    const targetMon = getMonday(jumpDate);
+    const monIdx = weekMondays.indexOf(targetMon);
+    if (monIdx !== -1) {
+      selectedWeekIndex = monIdx;
+    }
+    const [y, m, d] = jumpDate.split('-').map(Number);
+    const dt = new Date(Date.UTC(y, m - 1, d, 12, 0, 0));
+    sel = (dt.getUTCDay() + 6) % 7;
+    dir = 'r';
+    render();
+    setTimeout(() => {
+      const card = document.querySelector(`.card[data-i="${jumpSlot}"]`);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('open');
+        card.querySelector('.card-h')?.setAttribute('aria-expanded', 'true');
+      }
+    }, 150);
+    return;
+  }
+
+  // Toggle card expand/collapse
   const hd = e.target.closest('.card-h');
   if (hd) {
     const card = hd.parentElement, o = card.classList.toggle('open');
@@ -556,6 +1065,7 @@ $('#view').addEventListener('click', e => {
     return;
   }
 
+  // Delete note
   const delBtn = e.target.closest('[data-del]');
   if (delBtn) {
     const k = delBtn.dataset.del;
@@ -574,18 +1084,58 @@ $('#view').addEventListener('click', e => {
     return;
   }
 
+  // Copy schedule for chat
   if (e.target.id === 'cp') {
+    const activeMon = getActiveMonday();
+    const dateStr = addDays(activeMon, sel);
     const txt = DN[sel] + ':\n' + lessons(sel).map(l => {
       let mark = '';
       if (l.canceled) mark = ' [ОТМЕНЕНА]';
       else if (l.replaced) mark = ' [ЗАМЕНА]';
-      return `${l.i + 1}. ${T[l.i][0]} ${l.name}${mark}, ${l.place || ''}`;
+      const slotHw = homework.find(hw => hw.date === dateStr && hw.slot === l.i);
+      const hwTxt = slotHw ? ` [ДЗ: ${slotHw.text.split('\n')[0]}]` : '';
+      return `${l.i + 1}. ${T[l.i][0]} ${l.name}${mark}, ${l.place || ''}${hwTxt}`;
     }).join('\n');
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
       .then(() => toast('Скопировано для чата'), () => toast('Не удалось скопировать'));
   }
 });
 
+/* Checkbox toggle for "Сделано" */
+$('#view').addEventListener('change', e => {
+  const chk = e.target.closest('.hw-done-check');
+  if (!chk) return;
+  const hwId = chk.dataset.hwid;
+  if (!hwId) return;
+
+  if (chk.checked) {
+    hwDone[hwId] = true;
+    toast('Отмечено как сделанное ✓');
+  } else {
+    delete hwDone[hwId];
+    toast('Снята отметка выполнения');
+  }
+  saveHwDone();
+
+  // Update UI live without resetting scroll
+  document.querySelectorAll(`.hw-done-check[data-hwid="${hwId}"]`).forEach(c => { c.checked = !!hwDone[hwId]; });
+  const cardBody = $(`#hw-body-${hwId}`);
+  if (cardBody) cardBody.classList.toggle('hw-done-text', !!hwDone[hwId]);
+  const viewBody = $(`#hw-view-body-${hwId}`);
+  if (viewBody) viewBody.classList.toggle('hw-done-text', !!hwDone[hwId]);
+  const viewItem = document.querySelector(`.hw-view-item[data-hwid="${hwId}"]`);
+  if (viewItem) viewItem.classList.toggle('is-done', !!hwDone[hwId]);
+
+  // Update badge on HW tab
+  const pendingHwCount = homework.filter(h => !hwDone[h.id]).length;
+  const badge = document.querySelector('.tab-badge');
+  if (badge) {
+    badge.textContent = pendingHwCount;
+    if (pendingHwCount === 0) badge.style.display = 'none';
+  }
+});
+
+/* Note editing */
 let noteTimer = null;
 $('#view').addEventListener('input', e => {
   const t = e.target; if (!t.dataset.k) return;
@@ -614,25 +1164,32 @@ $('#view').addEventListener('input', e => {
   }, 300);
 });
 
-/* ---------- live state ---------- */
+/* ---------- Live State Clock ---------- */
 function tick() {
   hero();
   const nm = nowM();
-  if (sel === today) document.querySelectorAll('.card').forEach(c => {
-    const i = +c.dataset.i, s = M(T[i][0]), e = M(T[i][1]);
-    c.classList.toggle('now', nm >= s && nm < e);
-    c.classList.toggle('past', nm >= e);
-    const bar = c.querySelector('.bar i');
-    if (bar) bar.style.width = Math.max(0, Math.min(100, (nm - s) / 90 * 100)) + '%';
-  });
+  const isCurWeek = (selectedWeekIndex === 1);
+  if (isCurWeek && sel === today) {
+    document.querySelectorAll('.card').forEach(c => {
+      const i = +c.dataset.i, s = M(T[i][0]), e = M(T[i][1]);
+      c.classList.toggle('now', nm >= s && nm < e);
+      c.classList.toggle('past', nm >= e);
+      const bar = c.querySelector('.bar i');
+      if (bar) bar.style.width = Math.max(0, Math.min(100, (nm - s) / 90 * 100)) + '%';
+    });
+  }
   document.querySelectorAll('.c.cur').forEach(c => c.classList.remove('cur'));
-  if (sel === 'w' && today < 6) T.forEach((t, i) => {
-    if (nm >= M(t[0]) && nm < M(t[1])) document.querySelector(`.c[data-d="${today}"][data-i="${i}"]`)?.classList.add('cur');
-  });
+  if (isCurWeek && sel === 'w' && today < 6) {
+    T.forEach((t, i) => {
+      if (nm >= M(t[0]) && nm < M(t[1])) {
+        document.querySelector(`.c[data-d="${today}"][data-i="${i}"]`)?.classList.add('cur');
+      }
+    });
+  }
 }
 setInterval(tick, 30000);
 
-/* ---------- swipe + keys ---------- */
+/* ---------- Swipes & Keyboard ---------- */
 let sx = null, sy = null;
 $('#view').addEventListener('touchstart', e => {
   if (e.target.closest('textarea')) return;
@@ -640,7 +1197,7 @@ $('#view').addEventListener('touchstart', e => {
 }, { passive: true });
 
 $('#view').addEventListener('touchend', e => {
-  if (sx === null || sel === 'w') return;
+  if (sx === null || sel === 'w' || sel === 'hw') return;
   const dx = e.changedTouches[0].clientX - sx;
   const dy = e.changedTouches[0].clientY - sy;
   sx = null; sy = null;
@@ -650,10 +1207,31 @@ $('#view').addEventListener('touchend', e => {
 });
 
 function go(s) {
-  if (sel === 'w') return;
+  if (sel === 'w' || sel === 'hw') return;
   const n = sel + s;
-  if (n < 0 || n > 5) return;
-  dir = s > 0 ? 'r' : 'l'; sel = n; render();
+  if (n < 0) {
+    // Edge transition: swipe right on Monday goes to Saturday of previous week
+    if (selectedWeekIndex > 0) {
+      selectedWeekIndex--;
+      sel = 5;
+      dir = 'l';
+      render();
+    }
+    return;
+  }
+  if (n > 5) {
+    // Edge transition: swipe left on Saturday goes to Monday of next week
+    if (selectedWeekIndex < 2) {
+      selectedWeekIndex++;
+      sel = 0;
+      dir = 'r';
+      render();
+    }
+    return;
+  }
+  dir = s > 0 ? 'r' : 'l';
+  sel = n;
+  render();
 }
 
 document.addEventListener('keydown', e => {
@@ -662,7 +1240,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'ArrowLeft') go(-1);
 });
 
-/* ---------- helpers ---------- */
+/* ---------- Toast & Burst ---------- */
 function toast(m) {
   const t = $('#toast'); t.textContent = m; t.classList.add('on');
   clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 1800);
@@ -682,7 +1260,7 @@ function burst(x, y) {
   }
 }
 
-/* ---------- schedule loader ---------- */
+/* ---------- Schedule Data Loader & Sync ---------- */
 function applyScheduleData(data) {
   if (!data) return;
   if (Array.isArray(data.bells) && data.bells.length === 4) {
@@ -692,16 +1270,44 @@ function applyScheduleData(data) {
     subjectsMap = {};
     data.subjects.forEach(s => { subjectsMap[s.id] = s; });
   }
-  if (Array.isArray(data.week) && data.week.length === 6) {
-    D = data.week.map(daySlots => daySlots.map(subId => subId ? subjectsMap[subId] || null : null));
+
+  // Handle template
+  if (Array.isArray(data.template) && data.template.length === 6) {
+    defaultTemplate = data.template;
+  } else if (Array.isArray(data.week) && data.week.length === 6) {
+    defaultTemplate = data.week;
   }
+
+  // Handle 3 weeks
+  if (data.weeks && typeof data.weeks === 'object') {
+    scheduleWeeks = data.weeks;
+  } else if (Array.isArray(data.week) && data.week.length === 6) {
+    // Migration fallback for old cache
+    const curMon = weekMondays[1];
+    scheduleWeeks = { [curMon]: { days: data.week } };
+  }
+
   if (Array.isArray(data.overrides)) {
     overrides = data.overrides;
   }
+  if (Array.isArray(data.homework)) {
+    homework = data.homework;
+    // Clean up obsolete keys from localStorage['afk-hw-done']
+    const activeHwIds = new Set(homework.map(h => h.id));
+    let cleaned = false;
+    Object.keys(hwDone).forEach(id => {
+      if (!activeHwIds.has(id)) {
+        delete hwDone[id];
+        cleaned = true;
+      }
+    });
+    if (cleaned) saveHwDone();
+  }
+
   render();
 }
 
-// Instant initial render before network request
+// Initial cache render
 const cachedSchedule = localStorage.getItem('afk-schedule-cache');
 if (cachedSchedule) {
   try {
@@ -713,7 +1319,7 @@ if (cachedSchedule) {
   applyScheduleData(DEFAULT_SCHEDULE);
 }
 
-// Automatic API host detection (works on both Cloudflare and GitHub Pages)
+// Automatic API host detection
 const API_BASE = location.origin.includes('github.io')
   ? 'https://fkis.a77831818.workers.dev'
   : '';
